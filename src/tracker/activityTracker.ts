@@ -64,10 +64,11 @@ export class ActivityTracker {
       this.checkIdle();
     }, 30 * 1000);
 
-    // Fix v1 bug #3: push disposables so they are cleaned up on deactivation
     this.idleCheckHandle = idleCheckInterval;
     this.context.subscriptions.push(onEdit, onFocus, {
-      dispose: () => clearInterval(idleCheckInterval),
+      dispose: () => {
+        clearInterval(idleCheckInterval);
+      },
     });
   }
 

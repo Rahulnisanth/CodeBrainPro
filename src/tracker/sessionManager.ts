@@ -6,7 +6,7 @@ import { toISO } from '../utils/dateUtils';
  * Manages WorkSession lifecycle — detects session boundaries based on idle threshold.
  */
 export class SessionManager {
-  private sessions: Map<string, WorkSession> = new Map(); // keyed by repoPath
+  private sessions = new Map<string, WorkSession>(); // keyed by repoPath
   private currentSessionId = generateUUID();
 
   /**

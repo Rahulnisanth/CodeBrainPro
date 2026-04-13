@@ -1,6 +1,6 @@
 import * as vscode from 'vscode';
 import { WorkUnit, CommitRecord, RiskEvent } from '../types';
-import { formatDuration, formatDate } from '../utils/dateUtils';
+import { formatDuration } from '../utils/dateUtils';
 import { SessionManager } from '../tracker/sessionManager';
 import { RepoManager } from '../repos/repoManager';
 
@@ -39,7 +39,7 @@ class ActivityItem extends vscode.TreeItem {
 class WorkUnitItem extends vscode.TreeItem {
   constructor(unit: WorkUnit) {
     const icon = TYPE_ICON[unit.type] ?? '$(circle-outline)';
-    super(`${unit.name}`, vscode.TreeItemCollapsibleState.None);
+    super(unit.name, vscode.TreeItemCollapsibleState.None);
     this.description = `[${unit.type}] · ${unit.commits.length} commit(s)`;
     this.iconPath = new vscode.ThemeIcon(
       unit.type === 'feature'

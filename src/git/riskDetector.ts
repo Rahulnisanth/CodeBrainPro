@@ -12,7 +12,7 @@ import * as path from 'path';
  */
 export class RiskDetector {
   private readonly POLL_INTERVAL_MS = 10 * 60 * 1000; // 10 minutes
-  private riskCounts: Map<string, number> = new Map(); // repoPath -> risk count
+  private riskCounts = new Map<string, number>(); // repoPath -> risk count
   private onRiskUpdate: ((count: number) => void) | null = null;
 
   constructor(
@@ -28,12 +28,13 @@ export class RiskDetector {
     if (onRiskUpdate) this.onRiskUpdate = onRiskUpdate;
 
     const handle = setInterval(() => {
-      this.checkRisks();
+      void this.checkRisks();
     }, this.POLL_INTERVAL_MS);
 
-    // Fix v1 bug #3
     this.context.subscriptions.push({
-      dispose: () => clearInterval(handle),
+      dispose: () => {
+        clearInterval(handle);
+      },
     });
   }
 

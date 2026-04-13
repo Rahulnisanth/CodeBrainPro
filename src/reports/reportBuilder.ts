@@ -1,17 +1,5 @@
-import {
-  ActivityEvent,
-  CommitRecord,
-  WorkSession,
-  WorkUnit,
-  RiskEvent,
-} from '../types';
-import {
-  formatDuration,
-  formatDate,
-  toDateString,
-  startOfDay,
-  startOfWeek,
-} from '../utils/dateUtils';
+import { ActivityEvent, CommitRecord, WorkUnit, RiskEvent } from '../types';
+import { toDateString } from '../utils/dateUtils';
 import { getLogsDir, getAcmDir, readJson } from '../utils/storage';
 import * as path from 'path';
 import * as fs from 'fs';
@@ -24,7 +12,7 @@ export interface ReportData {
   byDay: Record<string, number>; // date string -> minutes
   workUnits: WorkUnit[];
   commits: CommitRecord[];
-  topFiles: Array<{ filePath: string; editCount: number }>;
+  topFiles: { filePath: string; editCount: number }[];
   repos: Record<string, { minutes: number; commits: number }>;
   linesAdded: number;
   linesRemoved: number;

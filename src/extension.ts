@@ -26,35 +26,35 @@ const activeRisks: RiskEvent[] = [];
 export async function activate(
   context: vscode.ExtensionContext,
 ): Promise<void> {
-  console.log('✅ Auto-Commit Mate++ v2 activated!');
+  console.log('✅ ACM: Auto-Commit Mate++ activated!');
 
-  // ─── Storage directories ─────────────────────────────────────────────────
+  // Storage directories
   ensureAcmDirs();
 
-  // ─── Core services ────────────────────────────────────────────────────────
+  // Core services
   const credentialsManager = new CredentialsManager(context);
   const gitClient = new GitClient();
   const repoManager = new RepoManager();
   const sessionManager = new SessionManager();
   const logWriter = new LogWriter();
 
-  // ─── Detect repos ────────────────────────────────────────────────────────
+  // Detect repos
   await repoManager.detectRepos();
 
-  // ─── AI services ─────────────────────────────────────────────────────────
+  // AI services
   const geminiKey = (await context.secrets.get('acm.geminiApiKey')) ?? null;
   const classifier = new CommitClassifier(geminiKey);
   const grouper = new CommitGrouper(geminiKey);
   const aiReporter = new AiReporter(geminiKey);
 
-  // ─── Status Bar ───────────────────────────────────────────────────────────
+  // Status Bar
   const statusBar = new AcmStatusBar(context);
   statusBar.setActiveMinutesProvider(() =>
     sessionManager.getTotalActiveMinutesToday(),
   );
   statusBar.startUpdating();
 
-  // ─── Sidebar ──────────────────────────────────────────────────────────────
+  // Sidebar
   const sidebarProvider = new AcmSidebarProvider(sessionManager, repoManager);
   const treeView = vscode.window.createTreeView('acmSidebar', {
     treeDataProvider: sidebarProvider,
@@ -69,15 +69,19 @@ export async function activate(
     }),
   );
 
-  // ─── GitHub Sync ─────────────────────────────────────────────────────────
+  // GitHub Sync
   const githubSync = new GitHubSync(context, credentialsManager);
   githubSync.setSyncCallbacks(
-    () => statusBar.startSync(),
-    () => statusBar.stopSync(),
+    () => {
+      statusBar.startSync();
+    },
+    () => {
+      statusBar.stopSync();
+    },
   );
   githubSync.startAutoSync();
 
-  // ─── Activity Tracker ─────────────────────────────────────────────────────
+  // Activity Tracker
   const activityTracker = new ActivityTracker(
     context,
     repoManager,
@@ -90,7 +94,7 @@ export async function activate(
     activityTracker.activate();
   }
 
-  // ─── Commit Poller ────────────────────────────────────────────────────────
+  // Commit Poller
   const commitPoller = new CommitPoller(context, gitClient, repoManager);
 
   commitPoller.onNewCommit(async (commit) => {
@@ -115,18 +119,18 @@ export async function activate(
 
   commitPoller.start();
 
-  // ─── Risk Detector ────────────────────────────────────────────────────────
+  // Risk Detector
   const riskDetector = new RiskDetector(context, gitClient, repoManager);
   riskDetector.start((totalRisks) => {
     statusBar.setRiskCount(totalRisks);
     sidebarProvider.refresh({ risks: activeRisks });
   });
 
-  // ─── Report Manager ───────────────────────────────────────────────────────
+  // Report Manager
   const reportManager = new ReportManager(aiReporter, allCommits, allWorkUnits);
 
-  // ─── Commands ─────────────────────────────────────────────────────────────
-  const commands: Array<[string, () => void | Promise<void>]> = [
+  // Commands
+  const commands: [string, () => void | Promise<void>][] = [
     [
       'acm.start',
       async () => {
@@ -172,7 +176,9 @@ export async function activate(
     ['acm.generateAppraisal', () => reportManager.generateAppraisal()],
     [
       'acm.askQuestion',
-      () => ChatPanel.show(context, aiReporter, allWorkUnits),
+      () => {
+        ChatPanel.show(context, aiReporter, allWorkUnits);
+      },
     ],
     ['acm.syncNow', () => githubSync.syncNow()],
     [
@@ -204,10 +210,10 @@ export async function activate(
     context.subscriptions.push(vscode.commands.registerCommand(id, handler));
   });
 
-  // ─── Startup Prompt ───────────────────────────────────────────────────────
+  // Start-up Prompt
   if (config.get<boolean>('showStartupPrompt', true)) {
     const selection = await vscode.window.showInformationMessage(
-      '🚀 Auto-Commit Mate++ v2 is active! AI-powered activity tracking enabled.',
+      '🚀 ACM: Auto-Commit Mate++ is active! AI-powered activity tracking enabled.',
       'Configure',
       "Don't show again",
     );
@@ -223,6 +229,5 @@ export async function activate(
   }
 }
 
-export function deactivate(): void {
-  // All cleanup handled via context.subscriptions
-}
+// All cleanup handled via context.subscriptions
+export function deactivate(): void {}

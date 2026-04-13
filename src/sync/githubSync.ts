@@ -40,7 +40,9 @@ export class GitHubSync {
     const handle = setInterval(() => this.syncNow(), intervalMs);
 
     this.context.subscriptions.push({
-      dispose: () => clearInterval(handle),
+      dispose: () => {
+        clearInterval(handle);
+      },
     });
   }
 
@@ -83,7 +85,6 @@ export class GitHubSync {
 
   /**
    * Creates the Activity-Logger GitHub repo if it doesn't exist.
-   * Fix v1 bug #12: auto_init: true.
    */
   private async ensureGlobalRepoExists(
     username: string,

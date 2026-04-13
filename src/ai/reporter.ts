@@ -1,5 +1,5 @@
 import { GoogleGenerativeAI } from '@google/generative-ai';
-import { WorkUnit, WorkType } from '../types';
+import { WorkUnit } from '../types';
 import { buildReporterPrompt } from './promptTemplates';
 
 /**
@@ -34,7 +34,7 @@ export class AiReporter {
         period,
         workUnits.map((u) => ({
           name: u.name,
-          type: u.type as WorkType,
+          type: u.type,
           commitCount: u.commits.length,
         })),
         stats,

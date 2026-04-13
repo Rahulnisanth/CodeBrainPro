@@ -12,7 +12,7 @@ const CACHE_FILE = () => path.join(getAcmDir(), 'classifier-cache.json');
 /**
  * Keyword-based fallback classification rules (for offline / no-key mode).
  */
-const KEYWORD_RULES: Array<{ patterns: RegExp; type: WorkType }> = [
+const KEYWORD_RULES: { patterns: RegExp; type: WorkType }[] = [
   { patterns: /fix|bug|patch|hotfix|issue|error|defect/i, type: 'bugfix' },
   { patterns: /feat|add|new|implement|create|introduce/i, type: 'feature' },
   {

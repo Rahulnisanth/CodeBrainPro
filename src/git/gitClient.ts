@@ -12,7 +12,6 @@ export interface CommitInfo {
 
 /**
  * Async Git command wrappers.
- * Replaces v1's synchronous execSync calls (v1 bug #7).
  */
 export class GitClient {
   /**
@@ -106,10 +105,10 @@ export class GitClient {
         .map((line) => {
           const [hash, message, author, timestamp] = line.split('|');
           return {
-            hash: hash?.trim(),
-            message: message?.trim(),
-            author: author?.trim(),
-            timestamp: timestamp?.trim(),
+            hash: hash.trim(),
+            message: message.trim(),
+            author: author.trim(),
+            timestamp: timestamp.trim(),
           };
         })
         .filter((c) => c.hash && c.message);

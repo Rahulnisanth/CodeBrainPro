@@ -11,10 +11,9 @@ export interface RepoMetadata {
 
 /**
  * Multi-repository manager.
- * Fixes v1 bug #2: supports multiple workspaceFolders + user-configured paths.
  */
 export class RepoManager {
-  private repos: Map<string, RepoMetadata> = new Map();
+  private repos = new Map<string, RepoMetadata>();
   private readonly gitClient: GitClient;
 
   constructor() {

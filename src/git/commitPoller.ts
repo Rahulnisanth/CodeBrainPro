@@ -2,7 +2,6 @@ import * as vscode from 'vscode';
 import { GitClient, CommitInfo } from './gitClient';
 import { RepoManager } from '../repos/repoManager';
 import { CommitRecord } from '../types';
-import { toISO } from '../utils/dateUtils';
 import { writeJson, readJson, getAcmDir } from '../utils/storage';
 import * as path from 'path';
 
@@ -10,11 +9,11 @@ type CommitListener = (commit: CommitRecord) => void;
 
 /**
  * Polls all tracked repos every 5 minutes for new commits.
- * Stores handle in context.subscriptions (fix v1 bug #3).
+ * Stores handle in context.subscriptions
  */
 export class CommitPoller {
   private readonly POLL_INTERVAL_MS = 5 * 60 * 1000; // 5 minutes
-  private lastSeenCommits: Map<string, Set<string>> = new Map();
+  private lastSeenCommits = new Map<string, Set<string>>();
   private listeners: CommitListener[] = [];
   private readonly seenCommitsFile: string;
 
@@ -36,12 +35,13 @@ export class CommitPoller {
    */
   start(): void {
     const handle = setInterval(() => {
-      this.poll();
+      void this.poll();
     }, this.POLL_INTERVAL_MS);
 
-    // Fix v1 bug #3: register interval for cleanup
     this.context.subscriptions.push({
-      dispose: () => clearInterval(handle),
+      dispose: () => {
+        clearInterval(handle);
+      },
     });
 
     // Run immediately on start
@@ -84,7 +84,9 @@ export class CommitPoller {
             linesAdded: 0,
             linesRemoved: 0,
           };
-          this.listeners.forEach((l) => l(record));
+          this.listeners.forEach((l) => {
+            l(record);
+          });
         }
 
         this.lastSeenCommits.set(repo.repoPath, seen);

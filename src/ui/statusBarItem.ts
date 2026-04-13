@@ -46,7 +46,9 @@ export class AcmStatusBar {
 
     this.updateHandle = handle;
     this.context.subscriptions.push({
-      dispose: () => clearInterval(handle),
+      dispose: () => {
+        clearInterval(handle);
+      },
     });
   }
 

@@ -93,7 +93,7 @@
         "acm.showStartupPrompt": {
           "type": "boolean",
           "default": true,
-          "description": "Show the ACM welcome prompt on VS Code startup (fix v1 bug #4)",
+          "description": "Show the ACM welcome prompt on VS Code startup",
           "scope": "machine"
         }
       }

@@ -12,8 +12,6 @@ export class CredentialsManager {
     this.secrets = new SecretsManager(context);
   }
 
-  // ─── GitHub Auth ──────────────────────────────────────────────────────────
-
   /**
    * Returns stored GitHub credentials or prompts the user.
    */
@@ -71,8 +69,6 @@ export class CredentialsManager {
 
     return { username, token };
   }
-
-  // ─── Gemini Auth ──────────────────────────────────────────────────────────
 
   /**
    * Returns the stored Gemini API key or prompts the user.

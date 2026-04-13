@@ -4,10 +4,9 @@ import * as fs from 'fs';
 import { ReportData, ReportBuilder } from './reportBuilder';
 import { CommitRecord, WorkUnit } from '../types';
 import { AiReporter } from '../ai/reporter';
-import { CommitGrouper } from '../ai/grouper';
 import { toMarkdown } from './exporters/markdownExporter';
 import { toJson } from './exporters/jsonExporter';
-import { writeJson, getReportsDir, ensureAcmDirs } from '../utils/storage';
+import { getReportsDir, ensureAcmDirs } from '../utils/storage';
 import {
   toDateString,
   startOfDay,
