@@ -2,15 +2,15 @@ import * as fs from 'fs';
 import * as path from 'path';
 import * as os from 'os';
 
-const ACM_DIR = path.join(os.homedir(), '.acm');
-const LOGS_DIR = path.join(ACM_DIR, 'logs');
-const REPORTS_DIR = path.join(ACM_DIR, 'reports');
+const CODE_PILOT_DIR = path.join(os.homedir(), '.codePilot');
+const LOGS_DIR = path.join(CODE_PILOT_DIR, 'logs');
+const REPORTS_DIR = path.join(CODE_PILOT_DIR, 'reports');
 
 /**
- * Ensures the ~/.acm directory and its subdirectories exist.
+ * Ensures the ~/.codePilot directory and its subdirectories exist.
  */
-export function ensureAcmDirs(): void {
-  [ACM_DIR, LOGS_DIR, REPORTS_DIR].forEach((dir) => {
+export function ensureCodePilotDirs(): void {
+  [CODE_PILOT_DIR, LOGS_DIR, REPORTS_DIR].forEach((dir) => {
     if (!fs.existsSync(dir)) {
       fs.mkdirSync(dir, { recursive: true });
     }
@@ -18,10 +18,10 @@ export function ensureAcmDirs(): void {
 }
 
 /**
- * Returns the base ACM data directory path.
+ * Returns the base CodePilot data directory path.
  */
-export function getAcmDir(): string {
-  return ACM_DIR;
+export function getCodePilotDir(): string {
+  return CODE_PILOT_DIR;
 }
 
 /**

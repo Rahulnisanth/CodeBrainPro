@@ -1,5 +1,5 @@
 /**
- * Core data models for ACM.
+ * Core data models for CodePilot.
  */
 
 export type WorkType =

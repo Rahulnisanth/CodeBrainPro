@@ -1,5 +1,5 @@
 /**
- * Date & time utilities for ACM.
+ * Date & time utilities for CodePilot.
  */
 
 /**
