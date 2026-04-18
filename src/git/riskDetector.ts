@@ -48,7 +48,7 @@ export class RiskDetector {
   }
 
   private async checkRisks(): Promise<void> {
-    const config = vscode.workspace.getConfiguration('acm');
+    const config = vscode.workspace.getConfiguration('codePilot');
     const riskThresholdLines = config.get<number>('riskThresholdLines', 50);
     const riskThresholdMinutes = config.get<number>('riskThresholdMinutes', 60);
 
@@ -94,7 +94,7 @@ export class RiskDetector {
           appendToJsonArray<RiskEvent>(risksFile, riskEvent);
 
           // Show VS Code warning
-          const msg = `⚠️ ACM Risk: ${repo.repoName} has ${linesChanged} uncommitted lines for ${minutesSinceLastCommit}m`;
+          const msg = `⚠️ CodePilot Risk: ${repo.repoName} has ${linesChanged} uncommitted lines for ${minutesSinceLastCommit}m`;
           vscode.window
             .showWarningMessage(msg, 'Open Source Control')
             .then((choice) => {

@@ -26,7 +26,7 @@ const activeRisks: RiskEvent[] = [];
 export async function activate(
   context: vscode.ExtensionContext,
 ): Promise<void> {
-  console.log('✅ ACM: Auto-Commit Mate++ activated!');
+  console.log('✅ CodePilot activated!');
 
   // Storage directories
   ensureAcmDirs();
@@ -89,7 +89,7 @@ export async function activate(
     logWriter,
   );
 
-  const config = vscode.workspace.getConfiguration('acm');
+  const config = vscode.workspace.getConfiguration('codePilot');
   if (config.get<boolean>('enabled', true)) {
     activityTracker.activate();
   }
@@ -132,23 +132,23 @@ export async function activate(
   // Commands
   const commands: [string, () => void | Promise<void>][] = [
     [
-      'acm.start',
+      'codePilot.start',
       async () => {
         await repoManager.detectRepos();
         activityTracker.activate();
-        vscode.window.showInformationMessage('✅ ACM: Tracking started.');
+        vscode.window.showInformationMessage('✅ CodePilot: Tracking started.');
       },
     ],
     [
-      'acm.stop',
+      'codePilot.stop',
       () => {
         vscode.window.showInformationMessage(
-          '⏹️ ACM: Tracking paused. Use "ACM: Start" to resume.',
+          '⏹️ CodePilot: Tracking paused. Use "CodePilot: Start" to resume.',
         );
       },
     ],
     [
-      'acm.setInterval',
+      'codePilot.setInterval',
       async () => {
         const value = await vscode.window.showInputBox({
           prompt: 'Set auto-commit interval (minutes)',
@@ -165,37 +165,37 @@ export async function activate(
             vscode.ConfigurationTarget.Global,
           );
           vscode.window.showInformationMessage(
-            `⏱️ ACM: Interval set to ${value} minutes.`,
+            `⏱️ CodePilot: Interval set to ${value} minutes.`,
           );
         }
       },
     ],
-    ['acm.generateDaily', () => reportManager.generateDaily()],
-    ['acm.generateWeekly', () => reportManager.generateWeekly()],
-    ['acm.generateMonthly', () => reportManager.generateMonthly()],
-    ['acm.generateAppraisal', () => reportManager.generateAppraisal()],
+    ['codePilot.generateDaily', () => reportManager.generateDaily()],
+    ['codePilot.generateWeekly', () => reportManager.generateWeekly()],
+    ['codePilot.generateMonthly', () => reportManager.generateMonthly()],
+    ['codePilot.generateAppraisal', () => reportManager.generateAppraisal()],
     [
-      'acm.askQuestion',
+      'codePilot.askQuestion',
       () => {
         ChatPanel.show(context, aiReporter, allWorkUnits);
       },
     ],
-    ['acm.syncNow', () => githubSync.syncNow()],
+    ['codePilot.syncNow', () => githubSync.syncNow()],
     [
-      'acm.viewLog',
+      'codePilot.viewLog',
       async () => {
         const logPath = logWriter.getTodayLogPath();
         try {
           await vscode.window.showTextDocument(vscode.Uri.file(logPath));
         } catch {
           vscode.window.showInformationMessage(
-            'ACM: No activity log for today yet.',
+            'CodePilot: No activity log for today yet.',
           );
         }
       },
     ],
     [
-      'acm.setGeminiKey',
+      'codePilot.setGeminiKey',
       async () => {
         const newKey = await credentialsManager.setGeminiKey();
         if (newKey) {
@@ -206,14 +206,17 @@ export async function activate(
         }
       },
     ],
-    ['acm.clearCredentials', () => credentialsManager.clearCredentials()],
+    ['codePilot.clearCredentials', () => credentialsManager.clearCredentials()],
     [
-      'acm.openSettings',
+      'codePilot.openSettings',
       () =>
-        vscode.commands.executeCommand('workbench.action.openSettings', 'acm'),
+        vscode.commands.executeCommand(
+          'workbench.action.openSettings',
+          'codePilot',
+        ),
     ],
     [
-      'acm.openSidebar',
+      'codePilot.openSidebar',
       () => vscode.commands.executeCommand('acmSidebar.focus'),
     ],
   ];
@@ -225,12 +228,12 @@ export async function activate(
   // Start-up Prompt
   if (config.get<boolean>('showStartupPrompt', true)) {
     const selection = await vscode.window.showInformationMessage(
-      '🚀 ACM: Auto-Commit Mate++ is active! AI-powered activity tracking enabled.',
+      '🚀 CodePilot is active! AI-powered activity tracking enabled.',
       'Configure',
       "Don't show again",
     );
     if (selection === 'Configure') {
-      vscode.commands.executeCommand('acm.openSettings');
+      vscode.commands.executeCommand('codePilot.openSettings');
     } else if (selection === "Don't show again") {
       await config.update(
         'showStartupPrompt',

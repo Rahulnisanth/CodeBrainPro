@@ -88,7 +88,7 @@ class ReportItem extends vscode.TreeItem {
 }
 
 /**
- * Sidebar Tree Data Provider for ACM.
+ * Sidebar Tree Data Provider for CodePilot.
  * Shows: Today's Activity, Work Units, Risks, Reports.
  */
 export class AcmSidebarProvider implements vscode.TreeDataProvider<TreeItem> {
@@ -195,11 +195,14 @@ export class AcmSidebarProvider implements vscode.TreeDataProvider<TreeItem> {
 
   private getReportItems(): TreeItem[] {
     return [
-      new ReportItem('Generate Daily Report', 'acm.generateDaily'),
-      new ReportItem('Generate Weekly Report', 'acm.generateWeekly'),
-      new ReportItem('Generate Monthly Report', 'acm.generateMonthly'),
-      new ReportItem('Generate Appraisal Report', 'acm.generateAppraisal'),
-      new ReportItem('Ask a Question...', 'acm.askQuestion'),
+      new ReportItem('Generate Daily Report', 'codePilot.generateDaily'),
+      new ReportItem('Generate Weekly Report', 'codePilot.generateWeekly'),
+      new ReportItem('Generate Monthly Report', 'codePilot.generateMonthly'),
+      new ReportItem(
+        'Generate Appraisal Report',
+        'codePilot.generateAppraisal',
+      ),
+      new ReportItem('Ask a Question...', 'codePilot.askQuestion'),
     ];
   }
 }

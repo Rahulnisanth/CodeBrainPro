@@ -1,14 +1,14 @@
-# Auto-Commit Mate++ — User Guide
+# CodePilot — User Guide
 
 > **Version:** 1.0.0 · **Publisher:** Rahulnisanth · **Platform:** VS Code
 
 ---
 
-## What is ACM++?
+## What is CodePilot?
 
-Auto-Commit Mate++ (ACM++) is a VS Code extension that **silently watches your coding activity**, classifies your commits using Google Gemini AI, and turns everything into professional work reports — daily summaries, weekly logs, and appraisal-ready documents.
+CodePilot is a VS Code extension that **silently watches your coding activity**, classifies your commits using Google Gemini AI, and turns everything into professional work reports — daily summaries, weekly logs, and appraisal-ready documents.
 
-You just code. ACM++ tells your story.
+You just code. CodePilot tells your story.
 
 ---
 
@@ -35,12 +35,12 @@ You just code. ACM++ tells your story.
 
 1. Open VS Code
 2. Go to **Extensions** (`Cmd+Shift+X`)
-3. Search for **Auto-Commit Mate++**
+3. Search for **CodePilot**
 4. Click **Install**
 
 ### From VSIX (Manual Install)
 
-1. Download the `.vsix` file from [GitHub Releases](https://github.com/Rahulnisanth/ACM/releases)
+1. Download the `.vsix` file from [GitHub Releases](https://github.com/Rahulnisanth/CodePilot/releases)
 2. Open VS Code → `Cmd+Shift+P` → **Install from VSIX...**
 3. Select the downloaded file
 
@@ -50,10 +50,10 @@ You just code. ACM++ tells your story.
 
 ## 2. First-Time Setup
 
-When VS Code starts with ACM++ installed, you'll see a welcome prompt:
+When VS Code starts with CodePilot installed, you'll see a welcome prompt:
 
 ```
-🚀 Auto-Commit Mate++ is active! AI-powered activity tracking enabled.
+🚀 CodePilot is active! AI-powered activity tracking enabled.
 
   [Configure]   [Don't show again]
 ```
@@ -62,9 +62,9 @@ Click **Configure** to open Settings, or dismiss and set up on demand.
 
 ### Step 1 — Add Your GitHub Credentials
 
-ACM++ needs a GitHub Personal Access Token (PAT) to sync your activity logs.
+CodePilot needs a GitHub Personal Access Token (PAT) to sync your activity logs.
 
-1. Run command: `ACM: Sync to GitHub Now` (or any sync action)
+1. Run command: `CodePilot: Sync to GitHub Now` (or any sync action)
 2. You'll be prompted:
    - **GitHub username** — your GitHub handle
    - **GitHub PAT** — paste your token (it's stored securely, never in plain text)
@@ -74,7 +74,7 @@ ACM++ needs a GitHub Personal Access Token (PAT) to sync your activity logs.
 1. Go to [github.com/settings/tokens](https://github.com/settings/tokens)
 2. Click **Generate new token (classic)**
 3. Select scopes: `repo` (full control of private repos)
-4. Copy the token and paste it when ACM++ prompts you
+4. Copy the token and paste it when CodePilot prompts you
 
 > **Security note:** Your token is stored in VS Code Secret Storage — the same secure vault used by the GitHub Copilot extension. It is never written to any settings file.
 
@@ -82,8 +82,8 @@ ACM++ needs a GitHub Personal Access Token (PAT) to sync your activity logs.
 
 AI-powered classification, commit grouping, and report narratives require a Google Gemini API key.
 
-1. Run any AI feature (e.g. `ACM: Generate Daily Report`)
-2. ACM++ will prompt you for your Gemini API key
+1. Run any AI feature (e.g. `CodePilot: Generate Daily Report`)
+2. CodePilot will prompt you for your Gemini API key
 
 **How to get a Gemini API key:**
 
@@ -91,31 +91,31 @@ AI-powered classification, commit grouping, and report narratives require a Goog
 2. Click **Create API key**
 3. Copy and paste it when prompted
 
-> **Without a Gemini key**, ACM++ still works — commit classification falls back to keyword matching and reports are generated without AI narratives.
+> **Without a Gemini key**, CodePilot still works — commit classification falls back to keyword matching and reports are generated without AI narratives.
 
 ---
 
 ## 3. The Status Bar
 
-Once active, ACM++ shows a live indicator in the bottom-left of VS Code:
+Once active, CodePilot shows a live indicator in the bottom-left of VS Code:
 
 ```
-⏱ ACM: 4h 32m active today
+⏱ CodePilot: 4h 32m active today
 ```
 
-| State         | Appearance                        | Meaning                                         |
-| ------------- | --------------------------------- | ----------------------------------------------- |
-| Tracking      | `⏱ ACM: Xh Xm active today`       | Normal — counting your active coding time       |
-| Risk detected | `⚠ ACM: Xh Xm active — X risk(s)` | Amber background — uncommitted changes detected |
-| Syncing       | `↻ ACM: Syncing...`               | Spinner while pushing to GitHub                 |
+| State         | Appearance                              | Meaning                                         |
+| ------------- | --------------------------------------- | ----------------------------------------------- |
+| Tracking      | `⏱ CodePilot: Xh Xm active today`       | Normal — counting your active coding time       |
+| Risk detected | `⚠ CodePilot: Xh Xm active — X risk(s)` | Amber background — uncommitted changes detected |
+| Syncing       | `↻ CodePilot: Syncing...`               | Spinner while pushing to GitHub                 |
 
-**Click the status bar item** to open the ACM++ sidebar.
+**Click the status bar item** to open the CodePilot sidebar.
 
 ---
 
 ## 4. The Sidebar
 
-Open the sidebar by clicking the status bar item or pressing `Cmd+Shift+P` → **ACM: Open Sidebar**.
+Open the sidebar by clicking the status bar item or pressing `Cmd+Shift+P` → **CodePilot: Open Sidebar**.
 
 The sidebar has four collapsible sections:
 
@@ -166,23 +166,23 @@ Quick-access buttons for all report types and the Ask a Question chat.
 
 ## 5. Commands
 
-Access all commands via `Cmd+Shift+P` and type `ACM:`.
+Access all commands via `Cmd+Shift+P` and type `CodePilot:`.
 
-| Command                           | What it does                                            |
-| --------------------------------- | ------------------------------------------------------- |
-| `ACM: Start Auto-Commit Tracking` | Begin tracking activity across all detected repos       |
-| `ACM: Stop Auto-Commit Tracking`  | Pause tracking                                          |
-| `ACM: Set Commit Interval`        | Set how often auto-commit snapshots are taken (minutes) |
-| `ACM: Generate Daily Report`      | Report for the last 24 hours                            |
-| `ACM: Generate Weekly Report`     | Report for the last 7 days                              |
-| `ACM: Generate Monthly Report`    | Report for the last 30 days                             |
-| `ACM: Generate Appraisal Report`  | Report for a custom date range                          |
-| `ACM: Ask About My Work`          | Open the AI chat panel                                  |
-| `ACM: Sync to GitHub Now`         | Push activity logs to your GitHub Activity-Logger repo  |
-| `ACM: View Today's Activity Log`  | Open today's raw JSON activity log                      |
-| `ACM: Clear Credentials`          | Wipe stored GitHub PAT and Gemini key                   |
-| `ACM: Open Settings`              | Jump to ACM++ settings                                  |
-| `ACM: Open Sidebar`               | Focus the ACM++ sidebar panel                           |
+| Command                                 | What it does                                            |
+| --------------------------------------- | ------------------------------------------------------- |
+| `CodePilot: Start Auto-Commit Tracking` | Begin tracking activity across all detected repos       |
+| `CodePilot: Stop Auto-Commit Tracking`  | Pause tracking                                          |
+| `CodePilot: Set Commit Interval`        | Set how often auto-commit snapshots are taken (minutes) |
+| `CodePilot: Generate Daily Report`      | Report for the last 24 hours                            |
+| `CodePilot: Generate Weekly Report`     | Report for the last 7 days                              |
+| `CodePilot: Generate Monthly Report`    | Report for the last 30 days                             |
+| `CodePilot: Generate Appraisal Report`  | Report for a custom date range                          |
+| `CodePilot: Ask About My Work`          | Open the AI chat panel                                  |
+| `CodePilot: Sync to GitHub Now`         | Push activity logs to your GitHub codepilot-logs repo   |
+| `CodePilot: View Today's Activity Log`  | Open today's raw JSON activity log                      |
+| `CodePilot: Clear Credentials`          | Wipe stored GitHub PAT and Gemini key                   |
+| `CodePilot: Open Settings`              | Jump to CodePilot settings                              |
+| `CodePilot: Open Sidebar`               | Focus the CodePilot sidebar panel                       |
 
 ---
 
@@ -192,28 +192,28 @@ Access all commands via `Cmd+Shift+P` and type `ACM:`.
 
 Covers the last 24 hours. Good for standups.
 
-1. `Cmd+Shift+P` → `ACM: Generate Daily Report`
+1. `Cmd+Shift+P` → `CodePilot: Generate Daily Report`
 2. Report generates and opens as a Markdown preview
-3. File saved to `~/.acm/reports/YYYY-MM-DD-daily.md`
+3. File saved to `~/.codePilot/reports/YYYY-MM-DD-daily.md`
 
 ### Weekly Work-Log
 
 Covers the last 7 days. Good for weekly check-ins.
 
-1. `Cmd+Shift+P` → `ACM: Generate Weekly Report`
-2. Saved to `~/.acm/reports/YYYY-WW-weekly.md`
+1. `Cmd+Shift+P` → `CodePilot: Generate Weekly Report`
+2. Saved to `~/.codePilot/reports/YYYY-WW-weekly.md`
 
 ### Monthly Summary
 
 Covers the last 30 days.
 
-1. `Cmd+Shift+P` → `ACM: Generate Monthly Report`
+1. `Cmd+Shift+P` → `CodePilot: Generate Monthly Report`
 
 ### Appraisal Report _(most powerful)_
 
 Custom date range — ideal for performance reviews.
 
-1. `Cmd+Shift+P` → `ACM: Generate Appraisal Report`
+1. `Cmd+Shift+P` → `CodePilot: Generate Appraisal Report`
 2. Enter **start date** → `2026-01-01`
 3. Enter **end date** → `2026-03-31`
 4. Report generates covering the full period
@@ -236,7 +236,7 @@ Each report contains:
 Reports are saved as **Markdown** by default. To get JSON:
 
 - The JSON format is available for programmatic integrations
-- Find reports in `~/.acm/reports/`
+- Find reports in `~/.codePilot/reports/`
 
 ---
 
@@ -244,7 +244,7 @@ Reports are saved as **Markdown** by default. To get JSON:
 
 The AI chat panel lets you ask natural language questions about your work history.
 
-1. `Cmd+Shift+P` → `ACM: Ask About My Work`  
+1. `Cmd+Shift+P` → `CodePilot: Ask About My Work`  
    _(or click "Ask a Question..." in the sidebar Reports section)_
 2. A chat panel opens in a side column
 3. Type your question and press **Enter** or click **Ask**
@@ -257,67 +257,67 @@ The AI chat panel lets you ask natural language questions about your work histor
 - _"Summarize my work from January to March"_
 - _"What features did I build this sprint?"_
 
-> **Requires a Gemini API key.** Without one, ACM++ will prompt you to add one or show a fallback message.
+> **Requires a Gemini API key.** Without one, CodePilot will prompt you to add one or show a fallback message.
 
 ---
 
 ## 8. GitHub Sync (Optional)
 
-ACM++ can optionally push your structured activity logs to a private or public GitHub repository called `Activity-Logger`.
+CodePilot can optionally push your structured activity logs to a private or public GitHub repository called `codepilot-logs`.
 
 ### Enable Sync
 
-1. Open Settings → `acm.syncEnabled` → set to `true`
-2. Set `acm.syncFrequencyHours` (default: 24h)
+1. Open Settings → `codePilot.syncEnabled` → set to `true`
+2. Set `codePilot.syncFrequencyHours` (default: 24h)
 
 Or trigger a manual sync any time:
-`Cmd+Shift+P` → `ACM: Sync to GitHub Now`
+`Cmd+Shift+P` → `CodePilot: Sync to GitHub Now`
 
 ### What Gets Synced?
 
 ```
-Activity-Logger (GitHub repo)
+codepilot-logs (GitHub repo)
 └── logs/
     └── 2026/
         └── 04/
             └── 13.json    ← today's activity log
 ```
 
-The `Activity-Logger` repository is created automatically on first sync if it doesn't exist.
+The `codepilot-logs` repository is created automatically on first sync if it doesn't exist.
 
 ---
 
 ## 9. Settings Reference
 
-Open settings: `Cmd+Shift+P` → `ACM: Open Settings`
+Open settings: `Cmd+Shift+P` → `CodePilot: Open Settings`
 
-| Setting                     | Type     | Default | Description                                            |
-| --------------------------- | -------- | ------- | ------------------------------------------------------ |
-| `acm.enabled`               | boolean  | `true`  | Enable/disable all tracking                            |
-| `acm.githubUsername`        | string   | `""`    | Your GitHub username                                   |
-| `acm.additionalRepoPaths`   | string[] | `[]`    | Extra repo paths to track beyond open workspaces       |
-| `acm.commitIntervalMinutes` | number   | `30`    | Interval between auto-commit log snapshots             |
-| `acm.idleThresholdMinutes`  | number   | `5`     | Minutes of no activity before marking as idle          |
-| `acm.riskThresholdLines`    | number   | `50`    | Lines of uncommitted changes to trigger a risk warning |
-| `acm.riskThresholdMinutes`  | number   | `60`    | Minutes without a commit before risk warning fires     |
-| `acm.syncEnabled`           | boolean  | `false` | Auto-sync logs to GitHub                               |
-| `acm.syncFrequencyHours`    | number   | `24`    | Hours between auto-syncs                               |
-| `acm.logRetentionDays`      | number   | `90`    | Days to keep local activity logs                       |
-| `acm.showStartupPrompt`     | boolean  | `true`  | Show welcome prompt on VS Code startup                 |
+| Setting                           | Type     | Default | Description                                            |
+| --------------------------------- | -------- | ------- | ------------------------------------------------------ |
+| `codePilot.enabled`               | boolean  | `true`  | Enable/disable all tracking                            |
+| `codePilot.githubUsername`        | string   | `""`    | Your GitHub username                                   |
+| `codePilot.additionalRepoPaths`   | string[] | `[]`    | Extra repo paths to track beyond open workspaces       |
+| `codePilot.commitIntervalMinutes` | number   | `30`    | Interval between auto-commit log snapshots             |
+| `codePilot.idleThresholdMinutes`  | number   | `5`     | Minutes of no activity before marking as idle          |
+| `codePilot.riskThresholdLines`    | number   | `50`    | Lines of uncommitted changes to trigger a risk warning |
+| `codePilot.riskThresholdMinutes`  | number   | `60`    | Minutes without a commit before risk warning fires     |
+| `codePilot.syncEnabled`           | boolean  | `false` | Auto-sync logs to GitHub                               |
+| `codePilot.syncFrequencyHours`    | number   | `24`    | Hours between auto-syncs                               |
+| `codePilot.logRetentionDays`      | number   | `90`    | Days to keep local activity logs                       |
+| `codePilot.showStartupPrompt`     | boolean  | `true`  | Show welcome prompt on VS Code startup                 |
 
 ### Tips for Common Setups
 
 **Make risk alerts more sensitive:**
 
 ```json
-"acm.riskThresholdLines": 20,
-"acm.riskThresholdMinutes": 30
+"codePilot.riskThresholdLines": 20,
+"codePilot.riskThresholdMinutes": 30
 ```
 
 **Track additional repos not open in VS Code:**
 
 ```json
-"acm.additionalRepoPaths": [
+"codePilot.additionalRepoPaths": [
   "/Users/you/projects/backend",
   "/Users/you/projects/mobile-app"
 ]
@@ -326,18 +326,18 @@ Open settings: `Cmd+Shift+P` → `ACM: Open Settings`
 **Disable daily sync prompt:**
 
 ```json
-"acm.showStartupPrompt": false
+"codePilot.showStartupPrompt": false
 ```
 
 ---
 
 ## 10. How Tracking Works
 
-ACM++ tracks your work through two complementary mechanisms:
+CodePilot tracks your work through two complementary mechanisms:
 
 ### Activity Events (Real-time)
 
-Every time you edit a file, ACM++ records:
+Every time you edit a file, CodePilot records:
 
 - Which file changed
 - How many lines were added/removed
@@ -349,7 +349,7 @@ This happens silently in the background with zero performance impact.
 
 ### Commit Detection (Every 5 minutes)
 
-ACM++ polls your repo(s) for new commits every 5 minutes. When a new commit is found:
+CodePilot polls your repo(s) for new commits every 5 minutes. When a new commit is found:
 
 1. It's classified by AI (or keyword fallback)
 2. It's added to the Work Unit grouper
@@ -357,33 +357,33 @@ ACM++ polls your repo(s) for new commits every 5 minutes. When a new commit is f
 
 ### Session Detection
 
-ACM++ automatically detects when you're active vs idle:
+CodePilot automatically detects when you're active vs idle:
 
 - **Active:** You're editing files
-- **Idle:** No file edits for `acm.idleThresholdMinutes` (default: 5 minutes)
+- **Idle:** No file edits for `codePilotidleThresholdMinutes` (default: 5 minutes)
 
 Active time is what's shown in the status bar and reports.
 
 ### Where Data Lives
 
-All data stays **local on your machine** at `~/.acm/`:
+All data stays **local on your machine** at `~/.codePilot/`:
 
 ```
-~/.acm/
+~/.codePilot/
 ├── logs/               ← Daily activity event files (JSON)
 ├── reports/            ← Generated report files (Markdown/JSON)
 ├── classifier-cache.json   ← AI classification results (cached)
-├── seen-commits.json       ← Tracks which commits ACM++ has seen
+├── seen-commits.json       ← Tracks which commits CodePilot has seen
 └── risks.json              ← Log of risk events
 ```
 
-> **Privacy:** ACM++ never transmits your source code. Only commit messages and `git diff --stat` summaries are sent to the Gemini API.
+> **Privacy:** CodePilot never transmits your source code. Only commit messages and `git diff --stat` summaries are sent to the Gemini API.
 
 ---
 
 ## 11. AI Classification
 
-When a new commit is detected, ACM++ classifies it into one of these work types:
+When a new commit is detected, CodePilot classifies it into one of these work types:
 
 | Icon | Type       | Examples                                        |
 | ---- | ---------- | ----------------------------------------------- |
@@ -401,7 +401,7 @@ Gemini reads the commit message and diff summary to determine type + confidence 
 
 ### Without Gemini API Key (Keyword Fallback)
 
-ACM++ uses keyword matching on the commit message:
+CodePilot uses keyword matching on the commit message:
 
 | Keywords                                          | → Type     |
 | ------------------------------------------------- | ---------- |
@@ -421,38 +421,38 @@ ACM++ uses keyword matching on the commit message:
 Make sure:
 
 - You have a `.git` folder in your open workspace
-- `acm.enabled` is `true` in settings
-- Run `ACM: Start Auto-Commit Tracking` from the command palette
+- `codePilotenabled` is `true` in settings
+- Run `CodePilot: Start Auto-Commit Tracking` from the command palette
 
 ### Gemini API errors
 
 - Verify your key is valid at [aistudio.google.com](https://aistudio.google.com)
-- Run `ACM: Clear Credentials` and re-enter your key
+- Run `CodePilot: Clear Credentials` and re-enter your key
 - Check your API quota hasn't been exceeded
-- ACM++ will fall back to keyword classification automatically
+- CodePilot will fall back to keyword classification automatically
 
 ### GitHub sync failing
 
 - Verify your PAT has `repo` scope on GitHub
-- Run `ACM: Clear Credentials` and re-enter your token
+- Run `CodePilot: Clear Credentials` and re-enter your token
 - Check your internet connection
 - Ensure your PAT hasn't expired
 
 ### Reports showing 0 activity
 
-The report builder reads from `~/.acm/logs/`. Check:
+The report builder reads from `~/.codePilot/logs/`. Check:
 
 - You've had the extension running for at least a few hours
-- Run `ACM: View Today's Activity Log` — if the file exists, data is there
+- Run `CodePilot: View Today's Activity Log` — if the file exists, data is there
 - Each file edit generates an event, so you should see entries
 
 ### "No activity log for today yet" message
 
-This is normal if you just installed ACM++ or haven't edited any files in the current workspace yet. Edit any tracked file and check again in a minute.
+This is normal if you just installed CodePilot or haven't edited any files in the current workspace yet. Edit any tracked file and check again in a minute.
 
 ### Extension not activating
 
-ACM++ activates when VS Code detects a `.git` folder. Make sure:
+CodePilot activates when VS Code detects a `.git` folder. Make sure:
 
 - Your workspace has a `.git` folder (it's a Git repo)
 - The extension is enabled (not disabled in Extensions panel)
@@ -472,21 +472,21 @@ ACM++ activates when VS Code detects a `.git` folder. Make sure:
 - Risk detector with VS Code notifications
 - Live status bar with active time counter
 - Sidebar tree view
-- Optional GitHub sync to Activity-Logger repo
+- Optional GitHub sync to codepilot-logs repo
 - Secure credential storage via VS Code Secret Storage
 
 ---
 
 ## Privacy & Security
 
-| Concern                      | ACM++ Behaviour                                                  |
-| ---------------------------- | ---------------------------------------------------------------- |
-| Source code                  | **Never sent anywhere.** Stays on your machine.                  |
-| Commit messages & diff stats | Sent to Gemini API for classification (optional, can disable AI) |
-| GitHub PAT                   | Stored in VS Code Secret Storage, never in plaintext             |
-| Gemini API key               | Stored in VS Code Secret Storage, never in plaintext             |
-| Activity logs                | Stored locally at `~/.acm/`. Optional GitHub sync if enabled     |
+| Concern                      | CodePilot Behaviour                                                |
+| ---------------------------- | ------------------------------------------------------------------ |
+| Source code                  | **Never sent anywhere.** Stays on your machine.                    |
+| Commit messages & diff stats | Sent to Gemini API for classification (optional, can disable AI)   |
+| GitHub PAT                   | Stored in VS Code Secret Storage, never in plaintext               |
+| Gemini API key               | Stored in VS Code Secret Storage, never in plaintext               |
+| Activity logs                | Stored locally at `~/.codePilot/`. Optional GitHub sync if enabled |
 
 ---
 
-_Made with ❤️ by Rahulnisanth · [GitHub](https://github.com/Rahulnisanth/ACM)_
+_Made with ❤️ by Rahulnisanth · [GitHub](https://github.com/Rahulnisanth/CodePilot)_

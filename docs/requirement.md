@@ -1,6 +1,6 @@
-# Auto-Commit Mate++ — Product Requirements
+# CodePilot — Product Requirements
 
-> **Product:** Auto-Commit Mate++ (ACM)
+> **Product:** CodePilot (CodePilot)
 > **Version:** 1.0.0
 > **Publisher:** Rahulnisanth
 > **Last Updated:** 2026-04-13
@@ -9,13 +9,13 @@
 
 ## 1. Overview
 
-**Auto-Commit Mate++** is a VS Code extension that automatically tracks, summarizes, and reports what you worked on — without any manual logging effort.
+**CodePilot** is a VS Code extension that automatically tracks, summarizes, and reports what you worked on — without any manual logging effort.
 
 It hooks into your coding activity in real time, classifies your commits using Google Gemini AI, groups related work into logical units, and generates professional reports you can use in standups, appraisals, or performance reviews.
 
 **Core value proposition:**
 
-> _"You code. ACM++ tells your story."_
+> _"You code. CodePilot tells your story."_
 
 ---
 
@@ -30,7 +30,7 @@ It hooks into your coding activity in real time, classifies your commits using G
 | Version Control | Git CLI via `child_process.exec` (async, non-blocking)             |
 | Remote Sync     | GitHub REST API v3 via `axios`                                     |
 | Auth Storage    | VS Code Secret Storage (`context.secrets`)                         |
-| Local Storage   | Structured JSON files in `~/.acm/`                                 |
+| Local Storage   | Structured JSON files in `~/.codePilot/`                           |
 | Report Export   | Markdown (built-in), JSON                                          |
 | Build           | `esbuild` (fast bundler)                                           |
 | Type Checking   | TypeScript strict mode                                             |
@@ -48,7 +48,7 @@ src/
 ├── tracker/
 │   ├── activityTracker.ts    # vscode event hooks (document changes, focus)
 │   ├── sessionManager.ts     # Session boundary detection
-│   └── logWriter.ts          # Write events to ~/.acm/logs/
+│   └── logWriter.ts          # Write events to ~/.codePilot/logs/
 ├── git/
 │   ├── gitClient.ts          # Async git command wrappers
 │   ├── commitPoller.ts       # 5-min commit detection interval
@@ -77,7 +77,7 @@ src/
 └── utils/
     ├── uuid.ts               # UUID generation (Node crypto)
     ├── dateUtils.ts          # Date/time formatting helpers
-    ├── storage.ts            # ~/.acm/ read/write helpers
+    ├── storage.ts            # ~/.codePilot/ read/write helpers
     └── secrets.ts            # context.secrets abstraction
 ```
 
@@ -105,8 +105,8 @@ Captures all developer activity in real time by hooking into VS Code event APIs.
 
 **Storage:**
 
-- `LogWriter` appends `ActivityEvent` objects to `~/.acm/logs/YYYY-MM-DD.json`
-- Log rotation: files older than `acm.logRetentionDays` (default: 90) are deleted automatically
+- `LogWriter` appends `ActivityEvent` objects to `~/.codePilot/logs/YYYY-MM-DD.json`
+- Log rotation: files older than `codePilot.logRetentionDays` (default: 90) are deleted automatically
 
 **Data shape (ActivityEvent):**
 
@@ -148,17 +148,17 @@ git log -1 --pretty=format:"%ad" --date=iso  # last commit time
 **Commit Poller (`commitPoller.ts`):**
 
 - Polls all tracked repos every 5 minutes for new commits
-- Persists seen commit hashes across restarts in `~/.acm/seen-commits.json`
+- Persists seen commit hashes across restarts in `~/.codePilot/seen-commits.json`
 - Emits `CommitRecord` events to registered listeners
 
 **Risk Detector (`riskDetector.ts`):**
 
-- Polls all repos every 10 minutes
+- Polls all repos every 10 minute`s
 - Triggers a VS Code warning notification when:
-  - `≥ acm.riskThresholdLines` lines modified but uncommitted for `≥ acm.riskThresholdMinutes`
+  - `≥ codePilot.riskThresholdLines` lines modified but uncommitted for `≥ codePilot.riskThresholdMinutes`
   - A file has been deleted but not committed
 - Notification includes a quick-action button to open Source Control panel
-- Logs risk events to `~/.acm/risks.json`
+- Logs risk events to `~/.codePilot/risks.json`
 - Reports risk count to the status bar (amber indicator)
 
 ---
@@ -167,17 +167,17 @@ git log -1 --pretty=format:"%ad" --date=iso  # last commit time
 
 All secrets are stored exclusively in VS Code Secret Storage (`context.secrets`) — never in plaintext settings or `globalState`.
 
-| Secret          | Key                  | Storage                          |
-| --------------- | -------------------- | -------------------------------- |
-| GitHub PAT      | `acm.githubToken`    | `context.secrets`                |
-| Gemini API Key  | `acm.geminiApiKey`   | `context.secrets`                |
-| GitHub username | `acm.githubUsername` | VS Code settings (non-sensitive) |
+| Secret          | Key                        | Storage                          |
+| --------------- | -------------------------- | -------------------------------- |
+| GitHub PAT      | `codePilot.githubToken`    | `context.secrets`                |
+| Gemini API Key  | `codePilot.geminiApiKey`   | `context.secrets`                |
+| GitHub username | `codePilot.githubUsername` | VS Code settings (non-sensitive) |
 
 **Flows:**
 
 - On first use, prompts user for GitHub username + PAT via secure masked `showInputBox`
 - On first AI feature use, prompts user for Gemini API key
-- `acm.clearCredentials` command wipes all stored secrets and resets username
+- `codePilot.clearCredentials` command wipes all stored secrets and resets username
 
 ---
 
@@ -186,7 +186,7 @@ All secrets are stored exclusively in VS Code Secret Storage (`context.secrets`)
 Supports tracking across multiple Git repositories simultaneously.
 
 - Detects all repos from `vscode.workspace.workspaceFolders`
-- Additionally tracks paths listed in `acm.additionalRepoPaths`
+- Additionally tracks paths listed in `codePilot.additionalRepoPaths`
 - Stores per-repo metadata: `repoName`, `repoPath`, `remoteUrl`, `lastSyncedAt`
 - All activity events, commits, and reports are tagged with their source repo
 
@@ -220,7 +220,7 @@ interface ClassificationResult {
 }
 ```
 
-**Caching:** Results are cached by `commitHash` in `~/.acm/classifier-cache.json` to avoid redundant API calls.
+**Caching:** Results are cached by `commitHash` in `~/.codePilot/classifier-cache.json` to avoid redundant API calls.
 
 **Graceful degradation:** If Gemini is unavailable or no API key is set, falls back to keyword-based rule matching:
 
@@ -280,12 +280,12 @@ Generates professional work reports from activity data.
 
 #### Report Types
 
-| Report           | Scope             | Command                 |
-| ---------------- | ----------------- | ----------------------- |
-| Daily Summary    | Last 24 hours     | `acm.generateDaily`     |
-| Weekly Work-Log  | Last 7 days       | `acm.generateWeekly`    |
-| Monthly Summary  | Last 30 days      | `acm.generateMonthly`   |
-| Appraisal Report | Custom date range | `acm.generateAppraisal` |
+| Report           | Scope             | Command                       |
+| ---------------- | ----------------- | ----------------------------- |
+| Daily Summary    | Last 24 hours     | `codePilot.generateDaily`     |
+| Weekly Work-Log  | Last 7 days       | `codePilot.generateWeekly`    |
+| Monthly Summary  | Last 30 days      | `codePilot.generateMonthly`   |
+| Appraisal Report | Custom date range | `codePilot.generateAppraisal` |
 
 #### Report Content
 
@@ -305,7 +305,7 @@ Each report includes:
 | Markdown | `.md`   | Always available |
 | JSON     | `.json` | Always available |
 
-Reports are saved to `~/.acm/reports/` and opened automatically after generation.
+Reports are saved to `~/.codePilot/reports/` and opened automatically after generation.
 
 #### Natural Language Query
 
@@ -320,13 +320,13 @@ Powered by Gemini. Maintains conversation context within the same session.
 
 ### 4.8 GitHub Sync Engine (`src/sync/`)
 
-Optionally syncs structured activity logs to a centralized `Activity-Logger` GitHub repository.
+Optionally syncs structured activity logs to a centralized `codepilot-logs` GitHub repository.
 
 - Auto-creates the repository if it doesn't exist (`auto_init: true`)
 - Sync structure:
   - `logs/YYYY/MM/DD.json` — structured daily log (JSON)
-- Configurable sync frequency via `acm.syncFrequencyHours` (default: 24h, disabled by default)
-- Manual trigger: `acm.syncNow` command
+- Configurable sync frequency via `codePilot.syncFrequencyHours` (default: 24h, disabled by default)
+- Manual trigger: `codePilot.syncNow` command
 - Sync status shown in status bar during sync
 
 ---
@@ -338,7 +338,7 @@ Optionally syncs structured activity logs to a centralized `Activity-Logger` Git
 A persistent status bar item in the bottom-left:
 
 ```
-⏱ ACM: 4h 32m active today
+⏱ CodePilot: 4h 32m active today
 ```
 
 - Click opens the sidebar panel
@@ -355,13 +355,13 @@ AUTO-COMMIT MATE++
 ├── 📅 Today's Activity
 │   ├── Active Time: 4h 32m
 │   ├── Commits Today: 7
-│   └── Repos: ACM, backend-api
+│   └── Repos: CodePilot, backend-api
 ├── 📦 Work Units (This Week)
 │   ├── 🟢 Secure Auth Migration  [feature]
 │   ├── 🔴 Fix setInterval Leak   [bugfix]
 │   └── 🔵 Migrate to TypeScript  [refactor]
 ├── ⚠️ Risks
-│   └── ACM: 78 lines uncommitted (1h 20m)
+│   └── CodePilot: 78 lines uncommitted (1h 20m)
 └── 📊 Reports
     ├── Generate Daily Report
     ├── Generate Weekly Report
@@ -372,44 +372,44 @@ AUTO-COMMIT MATE++
 
 ### 5.3 Commands (Command Palette)
 
-| Command                    | ID                      |
-| -------------------------- | ----------------------- |
-| Start Auto-Commit Tracking | `acm.start`             |
-| Stop Auto-Commit Tracking  | `acm.stop`              |
-| Set Commit Interval        | `acm.setInterval`       |
-| Generate Daily Report      | `acm.generateDaily`     |
-| Generate Weekly Report     | `acm.generateWeekly`    |
-| Generate Monthly Report    | `acm.generateMonthly`   |
-| Generate Appraisal Report  | `acm.generateAppraisal` |
-| Ask About My Work          | `acm.askQuestion`       |
-| Sync to GitHub Now         | `acm.syncNow`           |
-| View Today's Activity Log  | `acm.viewLog`           |
-| Clear Credentials          | `acm.clearCredentials`  |
-| Open Settings              | `acm.openSettings`      |
-| Open Sidebar               | `acm.openSidebar`       |
+| Command                    | ID                            |
+| -------------------------- | ----------------------------- |
+| Start Auto-Commit Tracking | `codePilot.start`             |
+| Stop Auto-Commit Tracking  | `codePilot.stop`              |
+| Set Commit Interval        | `codePilot.setInterval`       |
+| Generate Daily Report      | `codePilot.generateDaily`     |
+| Generate Weekly Report     | `codePilot.generateWeekly`    |
+| Generate Monthly Report    | `codePilot.generateMonthly`   |
+| Generate Appraisal Report  | `codePilot.generateAppraisal` |
+| Ask About My Work          | `codePilot.askQuestion`       |
+| Sync to GitHub Now         | `codePilot.syncNow`           |
+| View Today's Activity Log  | `codePilot.viewLog`           |
+| Clear Credentials          | `codePilot.clearCredentials`  |
+| Open Settings              | `codePilot.openSettings`      |
+| Open Sidebar               | `codePilot.openSidebar`       |
 
 ---
 
 ## 6. Settings
 
-| Setting                     | Type     | Default | Description                             |
-| --------------------------- | -------- | ------- | --------------------------------------- |
-| `acm.enabled`               | boolean  | `true`  | Enable/disable all tracking             |
-| `acm.githubUsername`        | string   | `""`    | GitHub username (non-sensitive)         |
-| `acm.additionalRepoPaths`   | string[] | `[]`    | Extra Git repo paths to track           |
-| `acm.commitIntervalMinutes` | number   | `30`    | Auto-commit log interval (minutes)      |
-| `acm.idleThresholdMinutes`  | number   | `5`     | Inactivity time before marking idle     |
-| `acm.riskThresholdLines`    | number   | `50`    | Uncommitted lines to trigger risk alert |
-| `acm.riskThresholdMinutes`  | number   | `60`    | Minutes before risk alert fires         |
-| `acm.syncEnabled`           | boolean  | `false` | Enable auto-sync to GitHub              |
-| `acm.syncFrequencyHours`    | number   | `24`    | Hours between auto-syncs                |
-| `acm.logRetentionDays`      | number   | `90`    | Days to keep local activity logs        |
-| `acm.showStartupPrompt`     | boolean  | `true`  | Show welcome prompt on startup          |
+| Setting                           | Type     | Default | Description                             |
+| --------------------------------- | -------- | ------- | --------------------------------------- |
+| `codePilot.enabled`               | boolean  | `true`  | Enable/disable all tracking             |
+| `codePilot.githubUsername`        | string   | `""`    | GitHub username (non-sensitive)         |
+| `codePilot.additionalRepoPaths`   | string[] | `[]`    | Extra Git repo paths to track           |
+| `codePilot.commitIntervalMinutes` | number   | `30`    | Auto-commit log interval (minutes)      |
+| `codePilot.idleThresholdMinutes`  | number   | `5`     | Inactivity time before marking idle     |
+| `codePilot.riskThresholdLines`    | number   | `50`    | Uncommitted lines to trigger risk alert |
+| `codePilot.riskThresholdMinutes`  | number   | `60`    | Minutes before risk alert fires         |
+| `codePilot.syncEnabled`           | boolean  | `false` | Enable auto-sync to GitHub              |
+| `codePilot.syncFrequencyHours`    | number   | `24`    | Hours between auto-syncs                |
+| `codePilot.logRetentionDays`      | number   | `90`    | Days to keep local activity logs        |
+| `codePilot.showStartupPrompt`     | boolean  | `true`  | Show welcome prompt on startup          |
 
 > **Secrets** (stored via `context.secrets`, never in settings):
 >
-> - `acm.githubToken` — GitHub Personal Access Token
-> - `acm.geminiApiKey` — Google Gemini API key
+> - `codePilot.githubToken` — GitHub Personal Access Token
+> - `codePilot.geminiApiKey` — Google Gemini API key
 
 ---
 
@@ -498,7 +498,7 @@ interface ClassificationResult {
 ## 8. Local File System Layout
 
 ```
-~/.acm/
+~/.codePilot/
 ├── logs/
 │   ├── 2026-04-13.json      # Daily activity events
 │   ├── 2026-04-12.json

@@ -6,11 +6,11 @@ import { toDateString, toYearMonth } from '../utils/dateUtils';
 import { readJson, getLogsDir } from '../utils/storage';
 import { ActivityEvent } from '../types';
 
-const GLOBAL_REPO_NAME = 'Activity-Logger';
+const GLOBAL_REPO_NAME = 'codepilot-logs';
 
 /**
  * GitHub Sync Engine — pushes structured activity logs and reports to a
- * centralized 'Activity-Logger' GitHub repository.
+ * centralized 'codepilot-logs' GitHub repository.
  * Auto-initializes the repo if it doesn't exist (auto_init: true).
  */
 export class GitHubSync {
@@ -34,7 +34,7 @@ export class GitHubSync {
    * Start the auto-sync interval (if enabled in settings).
    */
   startAutoSync(): void {
-    const config = vscode.workspace.getConfiguration('acm');
+    const config = vscode.workspace.getConfiguration('codePilot');
     if (!config.get<boolean>('syncEnabled', false)) return;
 
     const intervalHours = config.get<number>('syncFrequencyHours', 24);
@@ -50,13 +50,13 @@ export class GitHubSync {
   }
 
   /**
-   * Manually trigger a sync. Called by `acm.syncNow` command.
+   * Manually trigger a sync. Called by `codePilotsyncNow` command.
    */
   async syncNow(): Promise<void> {
-    const config = vscode.workspace.getConfiguration('acm');
+    const config = vscode.workspace.getConfiguration('codePilot');
     if (!config.get<boolean>('syncEnabled', true)) {
       vscode.window.showInformationMessage(
-        'ACM: GitHub sync is disabled. Enable `acm.syncEnabled` to sync.',
+        'CodePilot: GitHub sync is disabled. Enable `codePilot.syncEnabled` to sync.',
       );
       return;
     }
@@ -75,11 +75,11 @@ export class GitHubSync {
       await this.pushDailyLog(username, token);
 
       vscode.window.showInformationMessage(
-        '✅ ACM: Synced to GitHub Activity-Logger.',
+        '✅ CodePilot: Synced to GitHub codepilot-logs.',
       );
     } catch (error) {
       vscode.window.showErrorMessage(
-        `❌ ACM Sync failed: ${error instanceof Error ? error.message : 'Unknown error'}`,
+        `❌ CodePilot Sync failed: ${error instanceof Error ? error.message : 'Unknown error'}`,
       );
     } finally {
       this.onSyncEnd?.();
@@ -87,7 +87,7 @@ export class GitHubSync {
   }
 
   /**
-   * Creates the Activity-Logger GitHub repo if it doesn't exist.
+   * Creates the codepilot-logs GitHub repo if it doesn't exist.
    */
   private async ensureGlobalRepoExists(
     username: string,
@@ -104,14 +104,14 @@ export class GitHubSync {
           'https://api.github.com/user/repos',
           {
             name: GLOBAL_REPO_NAME,
-            description: 'ACM — Developer Activity Logger',
+            description: 'CodePilot — Developer Activity Logger',
             private: false,
             auto_init: true,
           },
           { headers },
         );
         vscode.window.showInformationMessage(
-          `✅ ACM: Created global repository '${GLOBAL_REPO_NAME}'.`,
+          `✅ CodePilot: Created global repository '${GLOBAL_REPO_NAME}'.`,
         );
       } else {
         throw err;
@@ -131,14 +131,14 @@ export class GitHubSync {
 
     const filePath = `logs/${yearMonth}/${day}.json`;
 
-    // Read real activity events from ~/.acm/logs/YYYY-MM-DD.json
+    // Read real activity events from ~/.codePilot/logs/YYYY-MM-DD.json
     const logsDir = getLogsDir();
     const logFilePath = path.join(logsDir, `${dateStr}.json`);
     const events = readJson<ActivityEvent[]>(logFilePath, []);
 
     if (events.length === 0) {
       vscode.window.showInformationMessage(
-        'ACM Sync: No activity logged today yet — nothing to push.',
+        'CodePilot Sync: No activity logged today yet — nothing to push.',
       );
       return;
     }
@@ -171,14 +171,14 @@ export class GitHubSync {
       await axios.put(
         apiUrl,
         {
-          message: `ACM: Activity log for ${dateStr} (${events.length} events)`,
+          message: `CodePilot: Activity log for ${dateStr} (${events.length} events)`,
           content: encodedContent,
           ...(sha ? { sha } : {}),
         },
         { headers },
       );
     } catch (error) {
-      console.error('ACM sync push error:', error);
+      console.error('CodePilot sync push error:', error);
       throw error;
     }
   }

@@ -81,7 +81,9 @@ export class ReportManager {
     });
 
     if (!startInput || !endInput) {
-      vscode.window.showErrorMessage('ACM: Start and end dates are required.');
+      vscode.window.showErrorMessage(
+        'CodePilot: Start and end dates are required.',
+      );
       return;
     }
 
@@ -90,7 +92,7 @@ export class ReportManager {
 
     if (isNaN(start.getTime()) || isNaN(end.getTime())) {
       vscode.window.showErrorMessage(
-        'ACM: Invalid date format. Use YYYY-MM-DD.',
+        'CodePilot: Invalid date format. Use YYYY-MM-DD.',
       );
       return;
     }
@@ -109,7 +111,7 @@ export class ReportManager {
     await vscode.window.withProgress(
       {
         location: vscode.ProgressLocation.Notification,
-        title: `ACM: Generating ${type} report...`,
+        title: `CodePilot: Generating ${type} report...`,
         cancellable: false,
       },
       async () => {
@@ -165,7 +167,7 @@ export class ReportManager {
           await this.saveReport(type, reportData, format, start);
         } catch (error) {
           vscode.window.showErrorMessage(
-            `ACM: Failed to generate report — ${error instanceof Error ? error.message : 'Unknown error'}`,
+            `CodePilot: Failed to generate report — ${error instanceof Error ? error.message : 'Unknown error'}`,
           );
         }
       },
@@ -189,7 +191,7 @@ export class ReportManager {
     fs.writeFileSync(filePath, content, 'utf-8');
 
     const open = await vscode.window.showInformationMessage(
-      `✅ ACM: ${type} report saved to ${filePath}`,
+      `✅ CodePilot: ${type} report saved to ${filePath}`,
       'Open Report',
     );
 
