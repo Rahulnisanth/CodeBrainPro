@@ -2,7 +2,7 @@ import * as vscode from 'vscode';
 import { GitClient } from './gitClient';
 import { RepoManager } from '../repos/repoManager';
 import { RiskEvent } from '../types';
-import { toISO } from '../utils/dateUtils';
+import { formatFullDuration, toISO } from '../utils/dateUtils';
 import { appendToJsonArray, getCodeBrainProDir } from '../utils/storage';
 import * as path from 'path';
 
@@ -94,9 +94,9 @@ export class RiskDetector {
           appendToJsonArray<RiskEvent>(risksFile, riskEvent);
 
           // Show VS Code warning
-          const msg = `⚠️ CodeBrainPro Risk: ${repo.repoName} has ${linesChanged} uncommitted lines for ${minutesSinceLastCommit}m`;
+          const message = `CodeBrainPro Risk: ${repo.repoName} has ${linesChanged} uncommitted lines for ${formatFullDuration(minutesSinceLastCommit)}m`;
           vscode.window
-            .showWarningMessage(msg, 'Open Source Control')
+            .showWarningMessage(message, 'Open Source Control')
             .then((choice) => {
               if (choice === 'Open Source Control') {
                 vscode.commands.executeCommand('workbench.view.scm');
