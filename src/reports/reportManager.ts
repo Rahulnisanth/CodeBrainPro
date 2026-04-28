@@ -4,6 +4,7 @@ import * as fs from 'fs';
 import { ReportData, ReportBuilder } from './reportBuilder';
 import { CommitRecord, WorkUnit } from '../types';
 import { AiReporter } from '../ai/reporter';
+import { SidebarStateManager } from '../ui/sidebarState';
 import { toMarkdown } from './exporters/markdownExporter';
 import { toJson } from './exporters/jsonExporter';
 import { getReportsDir, ensureCodeBrainProDirs } from '../utils/storage';
@@ -25,8 +26,7 @@ export class ReportManager {
 
   constructor(
     private readonly aiReporter: AiReporter,
-    private readonly commitsStore: CommitRecord[],
-    private readonly workUnitsStore: WorkUnit[],
+    private readonly sidebarState: SidebarStateManager,
   ) {
     this.builder = new ReportBuilder();
   }
@@ -119,12 +119,12 @@ export class ReportManager {
       async () => {
         try {
           // Filter commits & work units to date range
-          const commits = this.commitsStore.filter((c) => {
+          const commits = this.sidebarState.getAllCommits().filter((c) => {
             const t = new Date(c.timestamp);
             return t >= start && t <= end;
           });
 
-          const workUnits = this.workUnitsStore.filter((u) => {
+          const workUnits = this.sidebarState.getWorkUnits().filter((u) => {
             const t = new Date(u.startTime);
             return t >= start && t <= end;
           });

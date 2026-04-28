@@ -6,6 +6,7 @@ import { ActivityTracker } from './tracker/activityTracker';
 import { SessionManager } from './tracker/sessionManager';
 import { LogWriter } from './tracker/logWriter';
 import { CommitPoller } from './git/commitPoller';
+import { CommitQueue } from './git/commitQueue';
 import { RiskDetector } from './git/riskDetector';
 import { CommitClassifier } from './ai/classifier';
 import { CommitGrouper } from './ai/grouper';
@@ -96,7 +97,8 @@ export async function activate(
   // Commit Poller
   const commitPoller = new CommitPoller(context, gitClient, repoManager);
 
-  commitPoller.onNewCommit(async (commit) => {
+  // Commit processing — sequential queue prevents race conditions
+  const processCommit = async (commit: CommitRecord): Promise<void> => {
     const classification = await classifier.classify(
       commit.hash,
       commit.message,
@@ -109,7 +111,7 @@ export async function activate(
       return;
     }
 
-    // Re-group work units on each new commit
+    // Re-group work units — safe because we process sequentially
     const newWorkUnits = await grouper.group(sidebarState.getGroupingWindow());
     sidebarState.setWorkUnits(newWorkUnits);
 
@@ -119,6 +121,12 @@ export async function activate(
     });
 
     sidebarState.persist();
+  };
+
+  const commitQueue = new CommitQueue(processCommit);
+
+  commitPoller.onNewCommit((commit) => {
+    commitQueue.enqueue(commit);
   });
 
   commitPoller.start();
@@ -156,12 +164,9 @@ export async function activate(
     sidebarProvider.refresh({ risks: sidebarState.getRisks() });
   });
 
-  // Report Manager
-  const reportManager = new ReportManager(
-    aiReporter,
-    sidebarState.getAllCommits(),
-    sidebarState.getWorkUnits(),
-  );
+  // Report Manager — receives the state manager so it always reads
+  // the latest data instead of a stale snapshot captured at construction.
+  const reportManager = new ReportManager(aiReporter, sidebarState);
 
   // Commands
   const commands: [string, () => void | Promise<void>][] = [
