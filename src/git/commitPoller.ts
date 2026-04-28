@@ -12,10 +12,13 @@ type CommitListener = (commit: CommitRecord) => void;
  * Stores handle in context.subscriptions
  */
 export class CommitPoller {
-  private readonly POLL_INTERVAL_MS = 5 * 60 * 1000; // 5 minutes
   private lastSeenCommits = new Map<string, Set<string>>();
   private listeners: CommitListener[] = [];
   private readonly seenCommitsFile: string;
+  private pollTimeout: NodeJS.Timeout | null = null;
+  private isPolling = false;
+  private pollRequested = false;
+  private repoWatchers = new Map<string, vscode.FileSystemWatcher[]>();
 
   constructor(
     private readonly context: vscode.ExtensionContext,
@@ -31,21 +34,91 @@ export class CommitPoller {
   }
 
   /**
-   * Start polling and register the interval as a disposable.
+   * Start watching for commits and register disposables.
    */
   start(): void {
-    const handle = setInterval(() => {
-      void this.poll();
-    }, this.POLL_INTERVAL_MS);
-
     this.context.subscriptions.push({
       dispose: () => {
-        clearInterval(handle);
+        this.disposeWatchers();
       },
     });
 
     // Run immediately on start
-    this.poll();
+    this.triggerPoll();
+  }
+
+  private disposeWatchers(): void {
+    for (const watchers of this.repoWatchers.values()) {
+      watchers.forEach((w) => w.dispose());
+    }
+    this.repoWatchers.clear();
+  }
+
+  private setupWatchers(): void {
+    const repos = this.repoManager.getAll();
+    for (const repo of repos) {
+      if (!this.repoWatchers.has(repo.repoPath)) {
+        try {
+          const watchers: vscode.FileSystemWatcher[] = [];
+
+          const headPattern = new vscode.RelativePattern(
+            repo.repoPath,
+            '.git/logs/HEAD',
+          );
+          const headWatcher =
+            vscode.workspace.createFileSystemWatcher(headPattern);
+          headWatcher.onDidChange(() => this.triggerPoll());
+          headWatcher.onDidCreate(() => this.triggerPoll());
+          watchers.push(headWatcher);
+
+          const refsPattern = new vscode.RelativePattern(
+            repo.repoPath,
+            '.git/refs/heads/**',
+          );
+          const refsWatcher =
+            vscode.workspace.createFileSystemWatcher(refsPattern);
+          refsWatcher.onDidChange(() => this.triggerPoll());
+          refsWatcher.onDidCreate(() => this.triggerPoll());
+          watchers.push(refsWatcher);
+
+          this.repoWatchers.set(repo.repoPath, watchers);
+          watchers.forEach((w) => this.context.subscriptions.push(w));
+        } catch {
+          // Ignore errors setting up watchers for a specific repo
+        }
+      }
+    }
+  }
+
+  /**
+   * Trigger a debounced poll.
+   */
+  triggerPoll(): void {
+    if (this.pollTimeout) {
+      clearTimeout(this.pollTimeout);
+    }
+    this.pollTimeout = setTimeout(() => {
+      void this.executePoll();
+    }, 2000);
+  }
+
+  private async executePoll(): Promise<void> {
+    if (this.isPolling) {
+      this.pollRequested = true;
+      return;
+    }
+    this.isPolling = true;
+    this.pollRequested = false;
+
+    try {
+      this.setupWatchers(); // Ensure new repos are watched
+      await this.poll();
+    } finally {
+      this.isPolling = false;
+      if (this.pollRequested) {
+        this.triggerPoll();
+      }
+    }
   }
 
   /**

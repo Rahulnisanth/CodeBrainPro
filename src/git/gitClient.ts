@@ -7,6 +7,7 @@ export interface CommitInfo {
   hash: string;
   message: string;
   author: string;
+  authorEmail?: string;
   timestamp: string;
 }
 
@@ -93,8 +94,20 @@ export class GitClient {
    */
   async getRecentCommits(cwd: string, since: string): Promise<CommitInfo[]> {
     try {
+      // Get the configured Git user email
+      const emailObj = await execAsync('git config user.email', { cwd }).catch(
+        () => ({ stdout: '' }),
+      );
+      const userEmail = emailObj.stdout.trim();
+
+      // Get the configured Git user name
+      const nameObj = await execAsync('git config user.name', { cwd }).catch(
+        () => ({ stdout: '' }),
+      );
+      const userName = nameObj.stdout.trim();
+
       const { stdout } = await execAsync(
-        `git log --oneline --since="${since}" --pretty=format:"%H|%s|%an|%ad" --date=iso`,
+        `git log --oneline --since="${since}" --pretty=format:"%H|%s|%an|%ae|%ad" --date=iso`,
         { cwd },
       );
       if (!stdout.trim()) return [];
@@ -103,15 +116,24 @@ export class GitClient {
         .trim()
         .split('\n')
         .map((line) => {
-          const [hash, message, author, timestamp] = line.split('|');
+          const [hash, message, authorName, authorEmail, timestamp] =
+            line.split('|');
           return {
             hash: hash.trim(),
             message: message.trim(),
-            author: author.trim(),
-            timestamp: timestamp.trim(),
+            author: authorName.trim(),
+            authorEmail: authorEmail?.trim(),
+            timestamp: timestamp?.trim(),
           };
         })
-        .filter((c) => c.hash && c.message);
+        .filter((c) => {
+          if (!c.hash || !c.message) return false;
+          // Filter out peer commits: only accept user's own commits
+          if (userEmail && c.authorEmail === userEmail) return true;
+          if (userName && c.author === userName) return true;
+          if (!userEmail && !userName) return true;
+          return false;
+        });
     } catch {
       return [];
     }
