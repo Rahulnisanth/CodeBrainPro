@@ -2,7 +2,7 @@
   "name": "code-brain-pro",
   "displayName": "CodeBrainPro",
   "description": "AI-powered developer work-log, commit classifier, report generator, and productivity tracker. Automatically tracks, summarizes, and reports what you worked on.",
-  "version": "1.0.6",
+  "version": "1.0.7",
   "icon": "assets/extension-icon.png",
   "publisher": "rahul-nisanth",
   "engines": {
@@ -54,20 +54,6 @@
           "default": 5,
           "minimum": 1,
           "description": "Minutes of inactivity before marking the session as idle",
-          "scope": "machine"
-        },
-        "codeBrainPro.riskThresholdLines": {
-          "type": "number",
-          "default": 50,
-          "minimum": 1,
-          "description": "Number of uncommitted lines that trigger a risk alert",
-          "scope": "machine"
-        },
-        "codeBrainPro.riskThresholdMinutes": {
-          "type": "number",
-          "default": 60,
-          "minimum": 1,
-          "description": "Minutes without a commit before triggering a risk alert",
           "scope": "machine"
         },
         "codeBrainPro.syncEnabled": {

@@ -39,3 +39,26 @@
 - **fix:** Reports no longer show 0 lines changed — added `getCommitLineChanges()` to `GitClient` (uses `git show --numstat`) and `CommitPoller` now populates real `linesAdded`/`linesRemoved` values
 - **fix:** "Commits Today" count now filters by today's date instead of showing all recent commits (which could span up to 7 days)
 - **fix:** Updated `jsonExporter.ts` import to use centralized `ReportData` from `types.ts`
+
+## 1.0.7 (2026-04-30)
+
+### Removed
+
+- **breaking:** Removed the **Status Bar** widget (`src/ui/statusBarItem.ts`) — the live active-time indicator and risk-amber background are no longer present
+- **breaking:** Removed the **Risk Detector** module (`src/git/riskDetector.ts`) — uncommitted-change warnings, risk notifications, and `risks.json` logging are no longer generated
+- **breaking:** Removed the **Today's Activity** sidebar section — active time, commits today, and repos list are no longer displayed
+- **breaking:** Removed the **Risks** sidebar section — risk items no longer appear in the sidebar tree
+
+### Sidebar (Now)
+
+The sidebar now shows only two sections:
+
+```
+CODE BRAIN PRO
+├── 📦 Work Units (This Week)
+└── 📊 Reports
+```
+
+### Docs
+
+- Updated `README.md`, `docs/guide.md`, and `docs/requirement.md` to reflect all removals

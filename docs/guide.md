@@ -16,16 +16,15 @@ You just code. CodeBrainPro tells your story.
 
 1. [Installation](#1-installation)
 2. [First-Time Setup](#2-first-time-setup)
-3. [The Status Bar](#3-the-status-bar)
-4. [The Sidebar](#4-the-sidebar)
-5. [Commands](#5-commands)
-6. [Generating Reports](#6-generating-reports)
-7. [Ask About My Work](#7-ask-about-my-work)
-8. [GitHub Sync (Optional)](#8-github-sync-optional)
-9. [Settings Reference](#9-settings-reference)
-10. [How Tracking Works](#10-how-tracking-works)
-11. [AI Classification](#11-ai-classification)
-12. [Troubleshooting](#12-troubleshooting)
+3. [The Sidebar](#3-the-sidebar)
+4. [Commands](#4-commands)
+5. [Generating Reports](#5-generating-reports)
+6. [Ask About My Work](#6-ask-about-my-work)
+7. [GitHub Sync (Optional)](#7-github-sync-optional)
+8. [Settings Reference](#8-settings-reference)
+9. [How Tracking Works](#9-how-tracking-works)
+10. [AI Classification](#10-ai-classification)
+11. [Troubleshooting](#11-troubleshooting)
 
 ---
 
@@ -95,44 +94,18 @@ AI-powered classification, commit grouping, and report narratives require a Goog
 
 ---
 
-## 3. The Status Bar
+## 3. The Sidebar
 
-Once active, CodeBrainPro shows a live indicator in the bottom-left of VS Code:
+Open the sidebar by pressing `Cmd+Shift+P` → **CodeBrainPro: Open Sidebar**.
 
-```text
-⏱ CodeBrainPro: 4h 32m active today
-```
-
-| State         | Appearance                                 | Meaning                                         |
-| ------------- | ------------------------------------------ | ----------------------------------------------- |
-| Tracking      | `⏱ CodeBrainPro: Xh Xm active today`       | Normal — counting your active coding time       |
-| Risk detected | `⚠ CodeBrainPro: Xh Xm active — X risk(s)` | Amber background — uncommitted changes detected |
-| Syncing       | `↻ CodeBrainPro: Syncing...`               | Spinner while pushing to GitHub                 |
-
-**Click the status bar item** to open the CodeBrainPro sidebar.
-
----
-
-## 4. The Sidebar
-
-Open the sidebar by clicking the status bar item or pressing `Cmd+Shift+P` → **CodeBrainPro: Open Sidebar**.
-
-The sidebar has four collapsible sections:
+The sidebar has two collapsible sections:
 
 ```text
 CODE BRAIN PRO
-├── 📅 Today's Activity
-│   ├── Active Time: 4h 32m
-│   ├── Commits Today: 7
-│   └── Repos: my-project, backend-api
-│
 ├── 📦 Work Units (This Week)
 │   ├── 🟢 Auth System Refactor         [feature]
 │   ├── 🔴 Fix null pointer on login    [bugfix]
 │   └── 🔵 Clean up API types           [refactor]
-│
-├── ⚠️ Risks
-│   └── my-project: 78 lines uncommitted (1h 20m)
 │
 └── 📊 Reports
     ├── Generate Daily Report
@@ -142,10 +115,6 @@ CODE BRAIN PRO
     └── Ask a Question...
 ```
 
-### Today's Activity
-
-Shows your active coding time, commit count, and repos worked on today.
-
 ### Work Units
 
 AI-grouped clusters of related commits. Each unit shows:
@@ -154,17 +123,13 @@ AI-grouped clusters of related commits. Each unit shows:
 - Work type label: `feature`, `bugfix`, `refactor`, `docs`, `test`, or `chore`
 - Number of commits in the group
 
-### Risks
-
-Flags repos with large amounts of uncommitted changes. Click a risk item to open Source Control.
-
 ### Reports
 
 Quick-access buttons for all report types and the Ask a Question chat.
 
 ---
 
-## 5. Commands
+## 4. Commands
 
 Access all commands via `Cmd+Shift+P` and type `CodeBrainPro:`.
 
@@ -186,7 +151,7 @@ Access all commands via `Cmd+Shift+P` and type `CodeBrainPro:`.
 
 ---
 
-## 6. Generating Reports
+## 5. Generating Reports
 
 ### Daily Report
 
@@ -222,14 +187,13 @@ Custom date range — ideal for performance reviews.
 
 Each report contains:
 
-| Section                    | Description                                          |
-| -------------------------- | ---------------------------------------------------- |
-| **Achievement Highlights** | AI-generated 2–3 sentence narrative of your work     |
-| **Time Summary**           | Total active coding time, daily breakdown table      |
-| **Work Units**             | Grouped tasks with type labels and commit counts     |
-| **Repository Breakdown**   | Time and commits per repo                            |
-| **Top Files**              | Most frequently edited files                         |
-| **Risk Flags**             | Large uncommitted changes detected during the period |
+| Section                    | Description                                      |
+| -------------------------- | ------------------------------------------------ |
+| **Achievement Highlights** | AI-generated 2–3 sentence narrative of your work |
+| **Time Summary**           | Total active coding time, daily breakdown table  |
+| **Work Units**             | Grouped tasks with type labels and commit counts |
+| **Repository Breakdown**   | Time and commits per repo                        |
+| **Top Files**              | Most frequently edited files                     |
 
 ### Exporting Reports
 
@@ -240,7 +204,7 @@ Reports are saved as **Markdown** by default. To get JSON:
 
 ---
 
-## 7. Ask About My Work
+## 6. Ask About My Work
 
 The AI chat panel lets you ask natural language questions about your work history.
 
@@ -261,7 +225,7 @@ The AI chat panel lets you ask natural language questions about your work histor
 
 ---
 
-## 8. GitHub Sync (Optional)
+## 7. GitHub Sync (Optional)
 
 CodeBrainPro can optionally push your structured activity logs to a private or public GitHub repository called `code-brain-pro-logs`.
 
@@ -287,32 +251,23 @@ The `code-brain-pro-logs` repository is created automatically on first sync if i
 
 ---
 
-## 9. Settings Reference
+## 8. Settings Reference
 
 Open settings: `Cmd+Shift+P` → `CodeBrainPro: Open Settings`
 
-| Setting                              | Type     | Default | Description                                            |
-| ------------------------------------ | -------- | ------- | ------------------------------------------------------ |
-| `codeBrainPro.enabled`               | boolean  | `true`  | Enable/disable all tracking                            |
-| `codeBrainPro.githubUsername`        | string   | `""`    | Your GitHub username                                   |
-| `codeBrainPro.additionalRepoPaths`   | string[] | `[]`    | Extra repo paths to track beyond open workspaces       |
-| `codeBrainPro.commitIntervalMinutes` | number   | `30`    | Interval between auto-commit log snapshots             |
-| `codeBrainPro.idleThresholdMinutes`  | number   | `5`     | Minutes of no activity before marking as idle          |
-| `codeBrainPro.riskThresholdLines`    | number   | `50`    | Lines of uncommitted changes to trigger a risk warning |
-| `codeBrainPro.riskThresholdMinutes`  | number   | `60`    | Minutes without a commit before risk warning fires     |
-| `codeBrainPro.syncEnabled`           | boolean  | `false` | Auto-sync logs to GitHub                               |
-| `codeBrainPro.syncFrequencyHours`    | number   | `24`    | Hours between auto-syncs                               |
-| `codeBrainPro.logRetentionDays`      | number   | `90`    | Days to keep local activity logs                       |
-| `codeBrainPro.showStartupPrompt`     | boolean  | `true`  | Show welcome prompt on VS Code startup                 |
+| Setting                              | Type     | Default | Description                                      |
+| ------------------------------------ | -------- | ------- | ------------------------------------------------ |
+| `codeBrainPro.enabled`               | boolean  | `true`  | Enable/disable all tracking                      |
+| `codeBrainPro.githubUsername`        | string   | `""`    | Your GitHub username                             |
+| `codeBrainPro.additionalRepoPaths`   | string[] | `[]`    | Extra repo paths to track beyond open workspaces |
+| `codeBrainPro.commitIntervalMinutes` | number   | `30`    | Interval between auto-commit log snapshots       |
+| `codeBrainPro.idleThresholdMinutes`  | number   | `5`     | Minutes of no activity before marking as idle    |
+| `codeBrainPro.syncEnabled`           | boolean  | `false` | Auto-sync logs to GitHub                         |
+| `codeBrainPro.syncFrequencyHours`    | number   | `24`    | Hours between auto-syncs                         |
+| `codeBrainPro.logRetentionDays`      | number   | `90`    | Days to keep local activity logs                 |
+| `codeBrainPro.showStartupPrompt`     | boolean  | `true`  | Show welcome prompt on VS Code startup           |
 
 ### Tips for Common Setups
-
-**Make risk alerts more sensitive:**
-
-```json
-"codeBrainPro.riskThresholdLines": 20,
-"codeBrainPro.riskThresholdMinutes": 30
-```
 
 **Track additional repos not open in VS Code:**
 
@@ -331,7 +286,7 @@ Open settings: `Cmd+Shift+P` → `CodeBrainPro: Open Settings`
 
 ---
 
-## 10. How Tracking Works
+## 9. How Tracking Works
 
 CodeBrainPro tracks your work through two complementary mechanisms:
 
@@ -360,9 +315,9 @@ CodeBrainPro polls your repo(s) for new commits every 5 minutes. When a new comm
 CodeBrainPro automatically detects when you're active vs idle:
 
 - **Active:** You're editing files
-- **Idle:** No file edits for `codeBrainProidleThresholdMinutes` (default: 5 minutes)
+- **Idle:** No file edits for `codeBrainPro.idleThresholdMinutes` (default: 5 minutes)
 
-Active time is what's shown in the status bar and reports.
+Active time is what's shown in reports.
 
 ### Where Data Lives
 
@@ -373,15 +328,14 @@ All data stays **local on your machine** at `~/.codeBrainPro/`:
 ├── logs/               ← Daily activity event files (JSON)
 ├── reports/            ← Generated report files (Markdown/JSON)
 ├── classifier-cache.json   ← AI classification results (cached)
-├── seen-commits.json       ← Tracks which commits CodeBrainPro has seen
-└── risks.json              ← Log of risk events
+└── seen-commits.json       ← Tracks which commits CodeBrainPro has seen
 ```
 
 > **Privacy:** CodeBrainPro never transmits your source code. Only commit messages and `git diff --stat` summaries are sent to the Gemini API.
 
 ---
 
-## 11. AI Classification
+## 10. AI Classification
 
 When a new commit is detected, CodeBrainPro classifies it into one of these work types:
 
@@ -414,14 +368,14 @@ CodeBrainPro uses keyword matching on the commit message:
 
 ---
 
-## 12. Troubleshooting
+## 11. Troubleshooting
 
-### Status bar not showing
+### Sidebar not showing
 
 Make sure:
 
 - You have a `.git` folder in your open workspace
-- `codeBrainProenabled` is `true` in settings
+- `codeBrainPro.enabled` is `true` in settings
 - Run `CodeBrainPro: Start Tracking` from the command palette
 
 ### Gemini API errors

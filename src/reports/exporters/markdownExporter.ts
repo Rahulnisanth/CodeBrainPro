@@ -91,18 +91,6 @@ export function toMarkdown(report: ReportData): string {
     lines.push('');
   }
 
-  // Risk flags
-  if (report.risks.length > 0) {
-    lines.push('## ⚠️ Risk Flags');
-    lines.push('');
-    report.risks.forEach((risk) => {
-      lines.push(
-        `- **${risk.repoName}**: ${risk.linesChanged} uncommitted lines for ${risk.minutesSinceLastCommit}m (${risk.timestamp.slice(0, 10)})`,
-      );
-    });
-    lines.push('');
-  }
-
   lines.push('---');
   lines.push(`_Generated at ${new Date().toISOString()}_`);
 

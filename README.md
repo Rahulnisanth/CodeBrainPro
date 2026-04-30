@@ -29,7 +29,6 @@
 | **Report Generator**         | Daily / Weekly / Monthly / Appraisal reports with AI-written narratives                       |
 | **Natural Language Q&A**     | Ask questions like _"What did I work on this week?"_ directly in VS Code                      |
 | **Multi-Repo Support**       | Tracks all workspace folders and additional configured repo paths simultaneously              |
-| **Risk Detector**            | Warns when uncommitted changes grow large or stale                                            |
 | **GitHub Sync**              | Optionally pushes structured logs to a centralized `code-brain-pro-logs` GitHub repo          |
 | **Secure Credentials**       | GitHub PAT (Classic) and Gemini API key stored in VS Code Secret Storage — never in plaintext |
 
@@ -71,28 +70,14 @@ Run any AI feature (e.g. generate a report) and you'll be prompted for a Gemini 
 
 ## The Interface
 
-### Status Bar
-
-```text
-⏱ CodeBrainPro: 4h 32m active today
-```
-
-Click to open the sidebar. Turns **amber** when uncommitted change risks are detected.
-
 ### Sidebar
 
 ```text
 CODE BRAIN PRO
-├── 📅 Today's Activity
-│   ├── Active Time: 4h 32m
-│   ├── Commits Today: 7
-│   └── Repos: my-project, backend-api
 ├── 📦 Work Units (This Week)
 │   ├── 🟢 Auth System Refactor    [feature]
 │   ├── 🔴 Fix null pointer login  [bugfix]
 │   └── 🔵 Clean up API types      [refactor]
-├── ⚠️ Risks
-│   └── my-project: 78 lines uncommitted (1h 20m)
 └── 📊 Reports
     ├── Generate Daily Report
     ├── Generate Weekly Report
@@ -135,7 +120,6 @@ Reports are saved to `~/.codeBrainPro/reports/` and opened automatically after g
 - Work units with type labels and commit counts
 - Repository breakdown (time + commits per repo)
 - Top 10 most edited files
-- Risk flags for the period
 
 **Appraisal example:**
 
@@ -149,16 +133,14 @@ End date:   2026-03-31
 
 ## Settings
 
-| Setting                             | Default | Description               |
-| ----------------------------------- | ------- | ------------------------- |
-| `codeBrainPro.enabled`              | `true`  | Enable/disable tracking   |
-| `codeBrainPro.idleThresholdMinutes` | `5`     | Inactivity before idle    |
-| `codeBrainPro.riskThresholdLines`   | `50`    | Lines before risk alert   |
-| `codeBrainPro.riskThresholdMinutes` | `60`    | Minutes before risk alert |
-| `codeBrainPro.additionalRepoPaths`  | `[]`    | Extra repos to track      |
-| `codeBrainPro.syncEnabled`          | `false` | Auto-sync to GitHub       |
-| `codeBrainPro.syncFrequencyHours`   | `24`    | Sync frequency            |
-| `codeBrainPro.logRetentionDays`     | `90`    | Local log retention       |
+| Setting                             | Default | Description             |
+| ----------------------------------- | ------- | ----------------------- |
+| `codeBrainPro.enabled`              | `true`  | Enable/disable tracking |
+| `codeBrainPro.idleThresholdMinutes` | `5`     | Inactivity before idle  |
+| `codeBrainPro.additionalRepoPaths`  | `[]`    | Extra repos to track    |
+| `codeBrainPro.syncEnabled`          | `false` | Auto-sync to GitHub     |
+| `codeBrainPro.syncFrequencyHours`   | `24`    | Sync frequency          |
+| `codeBrainPro.logRetentionDays`     | `90`    | Local log retention     |
 
 > Secrets (`codeBrainPro.githubToken`, `codeBrainPro.geminiApiKey`) are stored via VS Code Secret Storage — never in settings files.
 
@@ -180,8 +162,7 @@ End date:   2026-03-31
 ├── logs/               ← Daily activity event files (JSON)
 ├── reports/            ← Generated reports (Markdown / JSON)
 ├── classifier-cache.json
-├── seen-commits.json
-└── risks.json
+└── seen-commits.json
 ```
 
 ---

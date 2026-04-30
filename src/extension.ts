@@ -7,13 +7,11 @@ import { SessionManager } from './tracker/sessionManager';
 import { LogWriter } from './tracker/logWriter';
 import { CommitPoller } from './git/commitPoller';
 import { CommitQueue } from './git/commitQueue';
-import { RiskDetector } from './git/riskDetector';
 import { CommitClassifier } from './ai/classifier';
 import { CommitGrouper } from './ai/grouper';
 import { AiReporter } from './ai/reporter';
 import { ReportManager } from './reports/reportManager';
 import { GitHubSync } from './sync/githubSync';
-import { CodeBrainProStatusBar } from './ui/statusBarItem';
 import { CodeBrainProSidebarProvider } from './ui/sidebarProvider';
 import { SidebarStateManager } from './ui/sidebarState';
 import { ChatPanel } from './ui/chatPanel';
@@ -44,22 +42,12 @@ export async function activate(
   const grouper = new CommitGrouper(geminiKey);
   const aiReporter = new AiReporter(geminiKey);
 
-  // Status Bar
-  const statusBar = new CodeBrainProStatusBar(context);
-  statusBar.setActiveMinutesProvider(() =>
-    sessionManager.getTotalActiveMinutesToday(),
-  );
-  statusBar.startUpdating();
-
   // Sidebar state — restore from disk so data survives window refreshes
   const sidebarState = new SidebarStateManager();
   sidebarState.restore();
 
   // Sidebar
-  const sidebarProvider = new CodeBrainProSidebarProvider(
-    sessionManager,
-    repoManager,
-  );
+  const sidebarProvider = new CodeBrainProSidebarProvider();
   const treeView = vscode.window.createTreeView('codeBrainProSidebar', {
     treeDataProvider: sidebarProvider,
     showCollapseAll: true,
@@ -70,7 +58,6 @@ export async function activate(
   if (sidebarState.hasData()) {
     sidebarProvider.restoreState({
       workUnits: sidebarState.getWorkUnits(),
-      commits: sidebarState.getRecentCommits(),
     });
   }
 
@@ -117,7 +104,6 @@ export async function activate(
 
     sidebarProvider.refresh({
       workUnits: sidebarState.getWorkUnits(),
-      commits: sidebarState.getRecentCommits(),
     });
 
     sidebarState.persist();
@@ -135,11 +121,9 @@ export async function activate(
   const githubSync = new GitHubSync(context, credentialsManager);
   githubSync.setSyncCallbacks(
     () => {
-      statusBar.startSync();
+      // Sync started — no-op (status bar removed)
     },
     async () => {
-      statusBar.stopSync();
-
       // Re-poll commits immediately so the sidebar reflects the latest
       // work units and commit history without waiting for the next
       // scheduled 5-minute poll interval.
@@ -147,7 +131,6 @@ export async function activate(
         await commitPoller.poll();
         sidebarProvider.refresh({
           workUnits: sidebarState.getWorkUnits(),
-          commits: sidebarState.getRecentCommits(),
         });
         sidebarState.persist();
       } catch {
@@ -156,14 +139,6 @@ export async function activate(
     },
   );
   githubSync.startAutoSync();
-
-  // Risk Detector
-  const riskDetector = new RiskDetector(context, gitClient, repoManager);
-  riskDetector.start((totalRisks) => {
-    statusBar.setRiskCount(totalRisks);
-    sidebarState.setRisks(riskDetector.getActiveRisks());
-    sidebarProvider.refresh({ risks: sidebarState.getRisks() });
-  });
 
   // Report Manager — receives the state manager so it always reads
   // the latest data instead of a stale snapshot captured at construction.

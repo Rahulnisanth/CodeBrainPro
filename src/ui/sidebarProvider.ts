@@ -1,29 +1,13 @@
 import * as vscode from 'vscode';
-import { WorkUnit, CommitRecord, RiskEvent } from '../types';
-import { formatDuration, toDateString } from '../utils/dateUtils';
-import { SessionManager } from '../tracker/sessionManager';
-import { RepoManager } from '../repos/repoManager';
+import { WorkUnit } from '../types';
 import { TYPE_ICON } from '../constants';
 
-type TreeItem =
-  | ActivityItem
-  | WorkUnitItem
-  | RiskItem
-  | ReportItem
-  | SectionItem;
+type TreeItem = WorkUnitItem | ReportItem | SectionItem;
 
 class SectionItem extends vscode.TreeItem {
   constructor(label: string, collapsible: vscode.TreeItemCollapsibleState) {
     super(label, collapsible);
     this.contextValue = 'section';
-  }
-}
-
-class ActivityItem extends vscode.TreeItem {
-  constructor(label: string, description?: string) {
-    super(label, vscode.TreeItemCollapsibleState.None);
-    this.description = description;
-    this.contextValue = 'activity';
   }
 }
 
@@ -50,22 +34,6 @@ class WorkUnitItem extends vscode.TreeItem {
   }
 }
 
-class RiskItem extends vscode.TreeItem {
-  constructor(risk: RiskEvent) {
-    super(
-      `${risk.repoName}: ${risk.linesChanged} lines uncommitted`,
-      vscode.TreeItemCollapsibleState.None,
-    );
-    this.description = `${risk.minutesSinceLastCommit}m without commit`;
-    this.iconPath = new vscode.ThemeIcon('warning');
-    this.command = {
-      command: 'workbench.view.scm',
-      title: 'Open Source Control',
-    };
-    this.contextValue = 'risk';
-  }
-}
-
 class ReportItem extends vscode.TreeItem {
   constructor(label: string, command: string) {
     super(label, vscode.TreeItemCollapsibleState.None);
@@ -80,7 +48,7 @@ class ReportItem extends vscode.TreeItem {
 
 /**
  * Sidebar Tree Data Provider for CodeBrainPro.
- * Shows: Today's Activity, Work Units, Risks, Reports.
+ * Shows: Work Units (This Week), Reports.
  */
 export class CodeBrainProSidebarProvider implements vscode.TreeDataProvider<TreeItem> {
   private _onDidChangeTreeData = new vscode.EventEmitter<
@@ -89,38 +57,23 @@ export class CodeBrainProSidebarProvider implements vscode.TreeDataProvider<Tree
   readonly onDidChangeTreeData = this._onDidChangeTreeData.event;
 
   private workUnits: WorkUnit[] = [];
-  private risks: RiskEvent[] = [];
-  private recentCommits: CommitRecord[] = [];
 
-  constructor(
-    private readonly sessionManager: SessionManager,
-    private readonly repoManager: RepoManager,
-  ) {}
+  constructor() {}
 
   /**
    * Restore persisted state on activation.
    * Called once during startup to hydrate the sidebar with data from disk.
    */
-  restoreState(data: {
-    workUnits?: WorkUnit[];
-    commits?: CommitRecord[];
-  }): void {
+  restoreState(data: { workUnits?: WorkUnit[] }): void {
     if (data.workUnits) this.workUnits = data.workUnits;
-    if (data.commits) this.recentCommits = data.commits;
     this._onDidChangeTreeData.fire();
   }
 
   /**
    * Refresh the tree with new data.
    */
-  refresh(data?: {
-    workUnits?: WorkUnit[];
-    risks?: RiskEvent[];
-    commits?: CommitRecord[];
-  }): void {
+  refresh(data?: { workUnits?: WorkUnit[] }): void {
     if (data?.workUnits) this.workUnits = data.workUnits;
-    if (data?.risks) this.risks = data.risks;
-    if (data?.commits) this.recentCommits = data.commits;
     this._onDidChangeTreeData.fire();
   }
 
@@ -130,31 +83,20 @@ export class CodeBrainProSidebarProvider implements vscode.TreeDataProvider<Tree
 
   getChildren(element?: TreeItem): TreeItem[] {
     if (!element) {
-      // Root level: four sections
+      // Root level: two sections
       return [
-        new SectionItem(
-          "📅 Today's Activity",
-          vscode.TreeItemCollapsibleState.Expanded,
-        ),
         new SectionItem(
           '📦 Work Units (This Week)',
           vscode.TreeItemCollapsibleState.Expanded,
         ),
-        new SectionItem('⚠️ Risks', vscode.TreeItemCollapsibleState.Expanded),
         new SectionItem('📊 Reports', vscode.TreeItemCollapsibleState.Expanded),
       ];
     }
 
     const label = (element as vscode.TreeItem).label as string;
 
-    if (label?.startsWith('📅')) {
-      return this.getTodayActivityItems();
-    }
     if (label?.startsWith('📦')) {
       return this.getWorkUnitItems();
-    }
-    if (label?.startsWith('⚠️')) {
-      return this.getRiskItems();
     }
     if (label?.startsWith('📊')) {
       return this.getReportItems();
@@ -163,42 +105,16 @@ export class CodeBrainProSidebarProvider implements vscode.TreeDataProvider<Tree
     return [];
   }
 
-  private getTodayActivityItems(): TreeItem[] {
-    const activeMinutes = this.sessionManager.getTotalActiveMinutesToday();
-    const repos = this.repoManager.getAll().map((r) => r.repoName);
-    const today = toDateString();
-    const todayCommits = this.recentCommits.filter((c) => {
-      return c.timestamp && toDateString(new Date(c.timestamp)) === today;
-    });
-    const items: TreeItem[] = [
-      new ActivityItem('Active Time', formatDuration(activeMinutes)),
-      new ActivityItem('Commits Today', String(todayCommits.length)),
-    ];
-
-    if (repos.length > 0) {
-      items.push(new ActivityItem('Repos', repos.join(', ')));
-    }
-
-    return items;
-  }
-
   private getWorkUnitItems(): TreeItem[] {
     if (this.workUnits.length === 0) {
-      return [
-        new ActivityItem(
-          'No work units this week',
-          'Commits will be grouped automatically',
-        ),
-      ];
+      const empty = new vscode.TreeItem(
+        'No work units this week',
+        vscode.TreeItemCollapsibleState.None,
+      );
+      empty.description = 'Commits will be grouped automatically';
+      return [empty as TreeItem];
     }
     return this.workUnits.slice(0, 10).map((u) => new WorkUnitItem(u));
-  }
-
-  private getRiskItems(): TreeItem[] {
-    if (this.risks.length === 0) {
-      return [new ActivityItem('No risks detected', '✓ All clear')];
-    }
-    return this.risks.map((r) => new RiskItem(r));
   }
 
   private getReportItems(): TreeItem[] {

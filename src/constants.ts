@@ -1,9 +1,6 @@
 import * as path from 'path';
 import * as os from 'os';
 
-/** Risk Detector Poll Interval */
-export const RISK_DETECTOR_POLL_INTERVAL_MS = 10 * 60 * 1000; // 10 minutes
-
 /** Global Repository Name */
 export const GLOBAL_REPO_NAME = 'code-brain-pro-logs';
 
@@ -27,10 +24,6 @@ export const REPORTS_DIR = path.join(CODE_BRAIN_PRO_DIR, 'reports');
 /** Classifier cache file */
 export const CACHE_FILE = () =>
   path.join(CODE_BRAIN_PRO_DIR, 'classifier-cache.json');
-
-/** Active time persistence file */
-export const ACTIVE_TIME_FILE = () =>
-  path.join(CODE_BRAIN_PRO_DIR, 'sidebar-active-time.json');
 
 /** Sidebar commits persistence file */
 export const COMMITS_FILE = () =>

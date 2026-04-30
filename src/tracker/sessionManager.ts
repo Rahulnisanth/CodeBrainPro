@@ -1,17 +1,10 @@
-import { ActivityEvent, PersistedActiveTime, WorkSession } from '../types';
+import { ActivityEvent, WorkSession } from '../types';
 import { generateUUID } from '../utils/uuid';
-import { toISO, toDateString } from '../utils/dateUtils';
-import { readJson, writeJson } from '../utils/storage';
-import { ACTIVE_TIME_FILE } from '../constants';
+import { toISO } from '../utils/dateUtils';
 
 export class SessionManager {
   private sessions = new Map<string, WorkSession>();
   private currentSessionId = generateUUID();
-  private persistedMinutesToday = 0;
-
-  constructor() {
-    this.restoreActiveTime();
-  }
 
   /**
    * Returns the current open session for a repo, creating one if needed.
@@ -74,44 +67,6 @@ export class SessionManager {
     return Array.from(this.sessions.values()).filter(
       (s) => s.endTime !== s.startTime,
     );
-  }
-
-  /**
-   * Calculates total active minutes today across all repos.
-   */
-  getTotalActiveMinutesToday(): number {
-    const liveMinutes = Array.from(this.sessions.values()).reduce(
-      (sum, s) => sum + s.activeMinutes,
-      0,
-    );
-    return this.persistedMinutesToday + liveMinutes;
-  }
-
-  /**
-   * Persist accumulated active time to disk so it survives window refreshes.
-   * Should be called periodically (e.g. on each activity event).
-   */
-  persistActiveTime(): void {
-    const data: PersistedActiveTime = {
-      date: toDateString(),
-      activeMinutes: this.getTotalActiveMinutesToday(),
-    };
-    try {
-      writeJson(ACTIVE_TIME_FILE(), data);
-    } catch {
-      // Non-fatal — will be rebuilt from live tracking
-    }
-  }
-
-  private restoreActiveTime(): void {
-    const stored = readJson<PersistedActiveTime>(ACTIVE_TIME_FILE(), {
-      date: '',
-      activeMinutes: 0,
-    });
-    // Only restore if the persisted data is from today
-    if (stored.date === toDateString()) {
-      this.persistedMinutesToday = stored.activeMinutes;
-    }
   }
 
   private createSession(repoPath: string): WorkSession {

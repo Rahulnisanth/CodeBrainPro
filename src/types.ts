@@ -67,24 +67,10 @@ export interface WorkUnit {
   totalLinesChanged: number;
 }
 
-export interface RiskEvent {
-  timestamp: string;
-  repoName: string;
-  repoPath: string;
-  linesChanged: number;
-  minutesSinceLastCommit: number;
-  hasDeletedFiles: boolean;
-}
-
 export interface ClassificationResult {
   type: WorkType;
   confidence: number;
   summary: string;
-}
-
-export interface PersistedActiveTime {
-  date: string;
-  activeMinutes: number;
 }
 
 export interface GroupResult {
@@ -113,7 +99,6 @@ export interface ReportData {
   repos: Record<string, { minutes: number; commits: number }>;
   linesAdded: number;
   linesRemoved: number;
-  risks: RiskEvent[];
   narrative?: string;
 }
 

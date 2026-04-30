@@ -1,12 +1,6 @@
-import {
-  ActivityEvent,
-  CommitRecord,
-  WorkUnit,
-  RiskEvent,
-  ReportData,
-} from '../types';
+import { ActivityEvent, CommitRecord, WorkUnit, ReportData } from '../types';
 import { toDateString } from '../utils/dateUtils';
-import { getLogsDir, getCodeBrainProDir, readJson } from '../utils/storage';
+import { getLogsDir, readJson } from '../utils/storage';
 import * as path from 'path';
 import * as fs from 'fs';
 
@@ -39,18 +33,6 @@ export class ReportBuilder {
   }
 
   /**
-   * Load risk events for a date range.
-   */
-  loadRisks(startDate: Date, endDate: Date): RiskEvent[] {
-    const risksFile = path.join(getCodeBrainProDir(), 'risks.json');
-    const all = readJson<RiskEvent[]>(risksFile, []);
-    return all.filter((r) => {
-      const t = new Date(r.timestamp);
-      return t >= startDate && t <= endDate;
-    });
-  }
-
-  /**
    * Build the full ReportData object from raw events and commits.
    */
   buildReportData(
@@ -62,7 +44,6 @@ export class ReportBuilder {
     narrative?: string,
   ): ReportData {
     const events = this.loadEvents(startDate, endDate);
-    const risks = this.loadRisks(startDate, endDate);
 
     // Aggregate active minutes per day
     const byDay: Record<string, number> = {};
@@ -122,7 +103,6 @@ export class ReportBuilder {
       repos: repoStats,
       linesAdded,
       linesRemoved,
-      risks,
       narrative,
     };
   }

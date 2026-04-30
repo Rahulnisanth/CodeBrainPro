@@ -1,5 +1,5 @@
 import * as path from 'path';
-import { CommitRecord, WorkUnit, RiskEvent } from '../types';
+import { CommitRecord, WorkUnit } from '../types';
 import { readJson, writeJson, getCodeBrainProDir } from '../utils/storage';
 import {
   COMMITS_FILE,
@@ -11,13 +11,12 @@ import {
 /**
  * Centralised in-memory + on-disk store for sidebar state.
  *
- * Owns the three data arrays that back the sidebar tree and
+ * Owns the data arrays that back the sidebar tree and
  * handles persistence so state survives window refreshes.
  */
 export class SidebarStateManager {
   private readonly commits: CommitRecord[] = [];
   private readonly workUnits: WorkUnit[] = [];
-  private readonly risks: RiskEvent[] = [];
 
   /** Restore persisted state from disk (call once at activation). */
   restore(): void {
@@ -67,11 +66,6 @@ export class SidebarStateManager {
     return this.workUnits;
   }
 
-  /** Current risk events. */
-  getRisks(): RiskEvent[] {
-    return this.risks;
-  }
-
   /** Returns true if the commit was added, false if it was a duplicate. */
   addCommit(commit: CommitRecord): boolean {
     if (this.commits.some((c) => c.hash === commit.hash)) {
@@ -85,11 +79,5 @@ export class SidebarStateManager {
   setWorkUnits(units: WorkUnit[]): void {
     this.workUnits.length = 0;
     this.workUnits.push(...units);
-  }
-
-  /** Replace risk events wholesale. */
-  setRisks(risks: RiskEvent[]): void {
-    this.risks.length = 0;
-    this.risks.push(...risks);
   }
 }

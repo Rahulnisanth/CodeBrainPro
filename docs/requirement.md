@@ -3,7 +3,7 @@
 > **Product:** CodeBrainPro (CodeBrainPro)
 > **Version:** 1.0.0
 > **Publisher:** Rahulnisanth
-> **Last Updated:** 2026-04-13
+> **Last Updated:** 2026-04-30
 
 ---
 
@@ -51,8 +51,7 @@ src/
 │   └── logWriter.ts          # Write events to ~/.codeBrainPro/logs/
 ├── git/
 │   ├── gitClient.ts          # Async git command wrappers
-│   ├── commitPoller.ts       # 5-min commit detection interval
-│   └── riskDetector.ts       # Uncommitted change warnings
+│   └── commitPoller.ts       # 5-min commit detection interval
 ├── ai/
 │   ├── classifier.ts         # Gemini commit classification
 │   ├── grouper.ts            # WorkUnit clustering
@@ -71,8 +70,8 @@ src/
 ├── auth/
 │   └── credentials.ts        # GitHub PAT (Classic) + Gemini key via SecretStorage
 ├── ui/
-│   ├── statusBarItem.ts      # Live status bar widget
 │   ├── sidebarProvider.ts    # VS Code TreeDataProvider
+│   ├── sidebarState.ts       # Persistent sidebar state manager
 │   └── chatPanel.ts          # Natural language Q&A webview
 └── utils/
     ├── uuid.ts               # UUID generation (Node crypto)
@@ -150,16 +149,6 @@ git log -1 --pretty=format:"%ad" --date=iso  # last commit time
 - Polls all tracked repos every 5 minutes for new commits
 - Persists seen commit hashes across restarts in `~/.codeBrainPro/seen-commits.json`
 - Emits `CommitRecord` events to registered listeners
-
-**Risk Detector (`riskDetector.ts`):**
-
-- Polls all repos every 10 minute`s
-- Triggers a VS Code warning notification when:
-  - `≥ codeBrainPro.riskThresholdLines` lines modified but uncommitted for `≥ codeBrainPro.riskThresholdMinutes`
-  - A file has been deleted but not committed
-- Notification includes a quick-action button to open Source Control panel
-- Logs risk events to `~/.codeBrainPro/risks.json`
-- Reports risk count to the status bar (amber indicator)
 
 ---
 
@@ -296,7 +285,6 @@ Each report includes:
 - **Work Units** — Grouped tasks with type labels and commit counts
 - **Repository Breakdown** — Time and commits per repo
 - **Top Files** — Most frequently edited files
-- **Risk Flags** — Any large uncommitted changes detected during the period
 
 #### Export Formats
 
@@ -327,41 +315,21 @@ Optionally syncs structured activity logs to a centralized `code-brain-pro-logs`
   - `logs/YYYY/MM/DD.json` — structured daily log (JSON)
 - Configurable sync frequency via `codeBrainPro.syncFrequencyHours` (default: 24h, disabled by default)
 - Manual trigger: `codeBrainPro.syncNow` command
-- Sync status shown in status bar during sync
 
 ---
 
 ## 5. VS Code Interface
 
-### 5.1 Status Bar
-
-A persistent status bar item in the bottom-left:
-
-```text
-⏱ CodeBrainPro: 4h 32m active today
-```
-
-- Click opens the sidebar panel
-- Turns **amber** when a risk is detected
-- Shows a sync spinner during GitHub sync
-- Updates every minute
-
-### 5.2 Sidebar Panel
+### 5.1 Sidebar Panel
 
 A tree view in the Activity Bar:
 
 ```text
 CODE BRAIN PRO
-├── 📅 Today's Activity
-│   ├── Active Time: 4h 32m
-│   ├── Commits Today: 7
-│   └── Repos: CodeBrainPro, backend-api
 ├── 📦 Work Units (This Week)
 │   ├── 🟢 Secure Auth Migration  [feature]
 │   ├── 🔴 Fix setInterval Leak   [bugfix]
 │   └── 🔵 Migrate to TypeScript  [refactor]
-├── ⚠️ Risks
-│   └── CodeBrainPro: 78 lines uncommitted (1h 20m)
 └── 📊 Reports
     ├── Generate Daily Report
     ├── Generate Weekly Report
@@ -370,7 +338,7 @@ CODE BRAIN PRO
     └── Ask a Question...
 ```
 
-### 5.3 Commands (Command Palette)
+### 5.2 Commands (Command Palette)
 
 | Command                   | ID                               |
 | ------------------------- | -------------------------------- |
@@ -392,19 +360,17 @@ CODE BRAIN PRO
 
 ## 6. Settings
 
-| Setting                              | Type     | Default | Description                             |
-| ------------------------------------ | -------- | ------- | --------------------------------------- |
-| `codeBrainPro.enabled`               | boolean  | `true`  | Enable/disable all tracking             |
-| `codeBrainPro.githubUsername`        | string   | `""`    | GitHub username (non-sensitive)         |
-| `codeBrainPro.additionalRepoPaths`   | string[] | `[]`    | Extra Git repo paths to track           |
-| `codeBrainPro.commitIntervalMinutes` | number   | `30`    | Auto-commit log interval (minutes)      |
-| `codeBrainPro.idleThresholdMinutes`  | number   | `5`     | Inactivity time before marking idle     |
-| `codeBrainPro.riskThresholdLines`    | number   | `50`    | Uncommitted lines to trigger risk alert |
-| `codeBrainPro.riskThresholdMinutes`  | number   | `60`    | Minutes before risk alert fires         |
-| `codeBrainPro.syncEnabled`           | boolean  | `false` | Enable auto-sync to GitHub              |
-| `codeBrainPro.syncFrequencyHours`    | number   | `24`    | Hours between auto-syncs                |
-| `codeBrainPro.logRetentionDays`      | number   | `90`    | Days to keep local activity logs        |
-| `codeBrainPro.showStartupPrompt`     | boolean  | `true`  | Show welcome prompt on startup          |
+| Setting                              | Type     | Default | Description                         |
+| ------------------------------------ | -------- | ------- | ----------------------------------- |
+| `codeBrainPro.enabled`               | boolean  | `true`  | Enable/disable all tracking         |
+| `codeBrainPro.githubUsername`        | string   | `""`    | GitHub username (non-sensitive)     |
+| `codeBrainPro.additionalRepoPaths`   | string[] | `[]`    | Extra Git repo paths to track       |
+| `codeBrainPro.commitIntervalMinutes` | number   | `30`    | Auto-commit log interval (minutes)  |
+| `codeBrainPro.idleThresholdMinutes`  | number   | `5`     | Inactivity time before marking idle |
+| `codeBrainPro.syncEnabled`           | boolean  | `false` | Enable auto-sync to GitHub          |
+| `codeBrainPro.syncFrequencyHours`    | number   | `24`    | Hours between auto-syncs            |
+| `codeBrainPro.logRetentionDays`      | number   | `90`    | Days to keep local activity logs    |
+| `codeBrainPro.showStartupPrompt`     | boolean  | `true`  | Show welcome prompt on startup      |
 
 > **Secrets** (stored via `context.secrets`, never in settings):
 >
@@ -477,15 +443,6 @@ interface WorkUnit {
   totalLinesChanged: number;
 }
 
-interface RiskEvent {
-  timestamp: string;
-  repoName: string;
-  repoPath: string;
-  linesChanged: number;
-  minutesSinceLastCommit: number;
-  hasDeletedFiles: boolean;
-}
-
 interface ClassificationResult {
   type: WorkType;
   confidence: number;
@@ -508,8 +465,7 @@ interface ClassificationResult {
 │   ├── 2026-W15-weekly.md
 │   └── ...
 ├── classifier-cache.json    # Commit classification cache (keyed by hash)
-├── seen-commits.json        # Commit poll deduplication state
-└── risks.json               # Risk event log
+└── seen-commits.json        # Commit poll deduplication state
 ```
 
 ---

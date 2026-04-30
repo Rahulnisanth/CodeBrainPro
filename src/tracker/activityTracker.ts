@@ -106,7 +106,6 @@ export class ActivityTracker {
 
     this.logWriter.writeEvent(event);
     this.sessionManager.recordActivity(event);
-    this.sessionManager.persistActiveTime();
   }
 
   private checkIdle(): void {
