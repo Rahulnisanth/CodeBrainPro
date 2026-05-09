@@ -32,8 +32,6 @@
 
 ## 1.0.6 (2026-04-29)
 
-### Bug Fixes
-
 - **fix:** Resolved active time still resetting on refresh — root cause was a circular dependency between `constants.ts` and `storage.ts` that silently broke persistence file resolution
 - **fix:** Risk status now correctly reflected in the sidebar — `RiskDetector` exposes detected risks via `getActiveRisks()` and the extension callback feeds them to `SidebarStateManager` before refreshing
 - **fix:** Reports no longer show 0 lines changed — added `getCommitLineChanges()` to `GitClient` (uses `git show --numstat`) and `CommitPoller` now populates real `linesAdded`/`linesRemoved` values
@@ -53,7 +51,7 @@
 
 The sidebar now shows only two sections:
 
-```
+```text
 CODE BRAIN PRO
 ├── 📦 Work Units (This Week)
 └── 📊 Reports
@@ -65,7 +63,9 @@ CODE BRAIN PRO
 
 ## 1.0.8 (2026-05-09)
 
-### Bug Fixes
-
 - **fix:** Chat panel send button no longer stays permanently disabled after an error — `isWaiting` is now reset and the button re-enabled inside the `'history'` message handler (which is the only message type the backend ever posts), so users can send follow-up messages without reopening the panel
 - **fix:** GitHub sync no longer fails with a 404 error on first use — after `auto_init` repo creation, the sync engine now polls the Contents API with exponential back-off (`waitForRepoReady`) until the default branch is ready before pushing; additionally, the SHA-fetch error handler now only silently ignores true 404s (file not yet created) and surfaces all other errors (auth failures, rate limits, etc.)
+
+## 1.0.9 (2026-05-09)
+
+- **fix:** Chat panel's send button no longer stays permanently disabled after single message and the button is re-enabled inside the `'history'` message handler

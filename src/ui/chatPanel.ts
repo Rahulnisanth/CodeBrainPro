@@ -67,17 +67,24 @@ export class ChatPanel {
     // Build context from work units
     const context = this.buildContext();
 
+    let responseContent: string;
     try {
-      const answer = await this.aiReporter.answerQuestion(question, context);
-      this.conversationHistory.push({ role: 'assistant', content: answer });
+      responseContent = await this.aiReporter.answerQuestion(question, context);
     } catch {
-      const error = 'Unable to process your question. Please try again.';
-      this.conversationHistory.push({ role: 'assistant', content: error });
+      responseContent = 'Unable to process your question. Please try again.';
     }
 
+    this.conversationHistory.push({
+      role: 'assistant',
+      content: responseContent,
+    });
+
+    // Send only the new assistant message — the webview already has the user
+    // message rendered, so a full history re-render is unnecessary and was
+    // causing the DOM rebuild to interfere with textarea focus / button state.
     this.panel.webview.postMessage({
-      type: 'history',
-      history: this.conversationHistory,
+      type: 'response',
+      content: responseContent,
     });
   }
 
@@ -663,16 +670,28 @@ export class ChatPanel {
         }
 
         window.addEventListener('message', (event) => {
-          const { type, history, answer, error } = event.data;
+          const { type, history, content, answer, error } = event.data;
 
+          // Normal Q&A response — backend sends just the new assistant message
+          if (type === 'response') {
+            removeTyping();
+            isWaiting = false;
+            appendMessage('assistant', content || '(no response)');
+            sendBtn.disabled = !input.value.trim();
+            input.focus();
+          }
+
+          // Full history re-render (e.g. panel restored from hidden state)
           if (type === 'history') {
             removeTyping();
             isWaiting = false;
-            sendBtn.disabled = !input.value.trim();
             messagesEl.innerHTML = '';
-            if (!history || history.length === 0) return;
-            history.forEach((entry) => appendMessage(entry.role, entry.content));
-            scrollToBottom();
+            if (history && history.length > 0) {
+              history.forEach((entry) => appendMessage(entry.role, entry.content));
+              scrollToBottom();
+            }
+            sendBtn.disabled = !input.value.trim();
+            input.focus();
           }
 
           // Backend-initiated reset (e.g. when show() is called with startFresh=true)
@@ -683,15 +702,17 @@ export class ChatPanel {
           if (type === 'answer') {
             removeTyping();
             isWaiting = false;
-            sendBtn.disabled = !input.value.trim();
             appendMessage('assistant', answer || '(no response)');
+            sendBtn.disabled = !input.value.trim();
+            input.focus();
           }
 
           if (type === 'error') {
             removeTyping();
             isWaiting = false;
-            sendBtn.disabled = !input.value.trim();
             appendMessage('assistant', '⚠ ' + (error || 'Something went wrong.'));
+            sendBtn.disabled = !input.value.trim();
+            input.focus();
           }
         });
       <\/script>
