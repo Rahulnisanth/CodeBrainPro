@@ -33,20 +33,6 @@ export class GitClient {
   }
 
   /**
-   * Get the root directory of the git repo.
-   */
-  async getRepoRoot(cwd: string): Promise<string | null> {
-    try {
-      const { stdout } = await execAsync('git rev-parse --show-toplevel', {
-        cwd,
-      });
-      return stdout.trim() || null;
-    } catch {
-      return null;
-    }
-  }
-
-  /**
    * Get the repo name from its remote URL or folder name.
    */
   async getRepoName(cwd: string): Promise<string> {
@@ -64,18 +50,6 @@ export class GitClient {
   async getDiffStat(cwd: string): Promise<string> {
     try {
       const { stdout } = await execAsync('git diff --stat', { cwd });
-      return stdout.trim();
-    } catch {
-      return '';
-    }
-  }
-
-  /**
-   * Get the staged diff stat.
-   */
-  async getStagedDiffStat(cwd: string): Promise<string> {
-    try {
-      const { stdout } = await execAsync('git diff --cached --stat', { cwd });
       return stdout.trim();
     } catch {
       return '';
@@ -133,70 +107,34 @@ export class GitClient {
   }
 
   /**
-   * Get the git status in porcelain format.
+   * Get lines added/removed for a specific file from the working tree diff.
+   * Combines both unstaged and staged changes.
    */
-  async getStatus(cwd: string): Promise<string> {
-    try {
-      const { stdout } = await execAsync('git status --porcelain', { cwd });
-      return stdout.trim();
-    } catch {
-      return '';
-    }
-  }
-
-  /**
-   * Get number of changed lines (added + removed) from status.
-   */
-  async getChangedLineCount(cwd: string): Promise<number> {
+  async getFileLineChanges(
+    cwd: string,
+    filePath: string,
+  ): Promise<{ linesAdded: number; linesRemoved: number }> {
     try {
       const { stdout } = await execAsync(
-        'git diff --numstat && git diff --cached --numstat',
+        `git diff --numstat -- "${filePath}" && git diff --cached --numstat -- "${filePath}"`,
         { cwd },
       );
-      let total = 0;
+      let linesAdded = 0;
+      let linesRemoved = 0;
       stdout
         .trim()
         .split('\n')
         .forEach((line) => {
+          if (!line.trim()) return;
           const parts = line.split('\t');
           const added = parseInt(parts[0], 10);
           const removed = parseInt(parts[1], 10);
-          if (!isNaN(added)) total += added;
-          if (!isNaN(removed)) total += removed;
+          if (!isNaN(added)) linesAdded += added;
+          if (!isNaN(removed)) linesRemoved += removed;
         });
-      return total;
+      return { linesAdded, linesRemoved };
     } catch {
-      return 0;
-    }
-  }
-
-  /**
-   * Run git add + commit + push for the project repo (async version of v1).
-   */
-  async commitAndPush(
-    cwd: string,
-    files: string[],
-    message: string,
-  ): Promise<void> {
-    const fileArgs = files.map((f) => `"${f}"`).join(' ');
-    await execAsync(`git add ${fileArgs}`, { cwd });
-    await execAsync(`git commit -m "${message}"`, { cwd });
-    await execAsync('git push', { cwd });
-  }
-
-  /**
-   * Get the timestamp of the last commit.
-   */
-  async getLastCommitTime(cwd: string): Promise<Date | null> {
-    try {
-      const { stdout } = await execAsync(
-        'git log -1 --pretty=format:"%ad" --date=iso',
-        { cwd },
-      );
-      const ts = stdout.trim();
-      return ts ? new Date(ts) : null;
-    } catch {
-      return null;
+      return { linesAdded: 0, linesRemoved: 0 };
     }
   }
 

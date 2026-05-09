@@ -1,6 +1,7 @@
 import * as vscode from 'vscode';
 import { ActivityEvent } from '../types';
 import { RepoManager } from '../repos/repoManager';
+import { GitClient } from '../git/gitClient';
 import { SessionManager } from './sessionManager';
 import { LogWriter } from './logWriter';
 import { generateUUID } from '../utils/uuid';
@@ -8,15 +9,20 @@ import { toISO } from '../utils/dateUtils';
 
 /**
  * Activity Tracker — hooks into VS Code document events to record developer activity.
+ * Uses `git diff --numstat` for accurate line-change counting.
  */
 export class ActivityTracker {
   private lastEventTime: number = Date.now();
   private idleCheckHandle: ReturnType<typeof setInterval> | null = null;
   private isIdle = false;
 
+  /** Debounce timers keyed by file path — avoids spamming git on every keystroke */
+  private editTimers = new Map<string, ReturnType<typeof setTimeout>>();
+
   constructor(
     private readonly context: vscode.ExtensionContext,
     private readonly repoManager: RepoManager,
+    private readonly gitClient: GitClient,
     private readonly sessionManager: SessionManager,
     private readonly logWriter: LogWriter,
   ) {}
@@ -25,26 +31,31 @@ export class ActivityTracker {
    * Activate all VS Code event hooks and start idle detection.
    */
   activate(): void {
-    // Hook: text document changes
+    // Hook: text document changes — debounce per file, then query git for real diff stats
     const onEdit = vscode.workspace.onDidChangeTextDocument((e) => {
       const doc = e.document;
       if (doc.uri.scheme !== 'file') return;
 
-      let linesAdded = 0;
-      let linesRemoved = 0;
-      e.contentChanges.forEach((change) => {
-        const lines = change.text.split('\n').length - 1;
-        linesAdded += lines;
-        linesRemoved += change.range.end.line - change.range.start.line;
-      });
+      const filePath = doc.uri.fsPath;
 
-      this.handleEvent({
-        filePath: doc.uri.fsPath,
-        type: 'edit',
-        linesAdded,
-        linesRemoved,
-        languageId: doc.languageId,
-      });
+      // Clear any pending timer for this file
+      const existing = this.editTimers.get(filePath);
+      if (existing) clearTimeout(existing);
+
+      // Debounce: wait 500ms of inactivity before recording the edit
+      const timer = setTimeout(() => {
+        this.editTimers.delete(filePath);
+        this.recordEditWithGitStats(filePath, doc.languageId);
+      }, 500);
+
+      this.editTimers.set(filePath, timer);
+
+      // Always update last-event time and resume from idle immediately
+      this.lastEventTime = Date.now();
+      if (this.isIdle) {
+        this.isIdle = false;
+        this.sessionManager.resumeSession();
+      }
     });
 
     // Hook: active editor changes (focus/context switch)
@@ -68,7 +79,32 @@ export class ActivityTracker {
     this.context.subscriptions.push(onEdit, onFocus, {
       dispose: () => {
         clearInterval(idleCheckInterval);
+        // Clean up any pending debounce timers
+        this.editTimers.forEach((timer) => clearTimeout(timer));
+        this.editTimers.clear();
       },
+    });
+  }
+
+  /**
+   * Query git for the actual lines added/removed for a file, then record the event.
+   */
+  private async recordEditWithGitStats(
+    filePath: string,
+    languageId: string,
+  ): Promise<void> {
+    const repo = this.repoManager.getRepoForFile(filePath);
+    if (!repo) return;
+
+    const { linesAdded, linesRemoved } =
+      await this.gitClient.getFileLineChanges(repo.repoPath, filePath);
+
+    this.handleEvent({
+      filePath,
+      type: 'edit',
+      linesAdded,
+      linesRemoved,
+      languageId,
     });
   }
 

@@ -72,6 +72,7 @@ export async function activate(
   const activityTracker = new ActivityTracker(
     context,
     repoManager,
+    gitClient,
     sessionManager,
     logWriter,
   );

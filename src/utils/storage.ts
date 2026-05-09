@@ -69,19 +69,6 @@ export function appendToJsonArray<T>(filePath: string, item: T): void {
 }
 
 /**
- * Reads all JSON files in a directory and returns their parsed contents as an array.
- */
-export function readAllJsonInDir<T>(dirPath: string): T[] {
-  if (!fs.existsSync(dirPath)) return [];
-  return fs
-    .readdirSync(dirPath)
-    .filter((f) => f.endsWith('.json'))
-    .flatMap((f) => {
-      return readJson<T[]>(path.join(dirPath, f), []);
-    });
-}
-
-/**
  * Deletes JSON log files older than `retentionDays` from the logs directory.
  */
 export function pruneOldLogs(retentionDays: number): void {

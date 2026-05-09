@@ -19,8 +19,6 @@
 
 ## 1.0.5 (2026-04-29)
 
-### Bug Fixes
-
 - **fix:** Active time no longer resets to 0 on VS Code window refresh — session minutes are now persisted to `~/.codeBrainPro/sidebar-active-time.json` and restored on activation
 
 ### Refactor
@@ -40,22 +38,10 @@
 
 ## 1.0.7 (2026-04-30)
 
-### Removed
-
 - **breaking:** Removed the **Status Bar** widget (`src/ui/statusBarItem.ts`) — the live active-time indicator and risk-amber background are no longer present
 - **breaking:** Removed the **Risk Detector** module (`src/git/riskDetector.ts`) — uncommitted-change warnings, risk notifications, and `risks.json` logging are no longer generated
 - **breaking:** Removed the **Today's Activity** sidebar section — active time, commits today, and repos list are no longer displayed
 - **breaking:** Removed the **Risks** sidebar section — risk items no longer appear in the sidebar tree
-
-### Sidebar (Now)
-
-The sidebar now shows only two sections:
-
-```text
-CODE BRAIN PRO
-├── 📦 Work Units (This Week)
-└── 📊 Reports
-```
 
 ### Docs
 
@@ -73,3 +59,9 @@ CODE BRAIN PRO
 ## 1.2.0 (2026-05-09)
 
 - **feat** Added new sidebar icon and updated the file structure of UIs
+
+## 1.2.1 (2026-05-09)
+
+- **fix:** `linesAdded` and `linesRemoved` no longer report 0 for all activity logs — replaced the flawed VS Code keystroke-based counting (`split('\n').length - 1`) with accurate `git diff --numstat` queries per file
+- **refactor:** `ActivityTracker` now debounces edit events (500ms) before querying git, preventing excessive subprocess calls on every keystroke
+- **feat:** Added `getFileLineChanges()` to `GitClient` — runs `git diff --numstat -- "<file>"` combining staged and unstaged changes for per-file accuracy

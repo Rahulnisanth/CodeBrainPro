@@ -62,23 +62,6 @@ export class RepoManager {
   }
 
   /**
-   * Get a repo by its path.
-   */
-  getByPath(repoPath: string): RepoMetadata | undefined {
-    return this.repos.get(repoPath);
-  }
-
-  /**
-   * Update the lastSyncedAt for a repo.
-   */
-  updateLastSynced(repoPath: string, timestamp: string): void {
-    const existing = this.repos.get(repoPath);
-    if (existing) {
-      this.repos.set(repoPath, { ...existing, lastSyncedAt: timestamp });
-    }
-  }
-
-  /**
    * Infer the repo root and name for a given file path.
    */
   getRepoForFile(filePath: string): RepoMetadata | undefined {
@@ -94,12 +77,5 @@ export class RepoManager {
       }
     });
     return best;
-  }
-
-  /**
-   * Returns the relative path of a file within its repo.
-   */
-  getRelativePath(filePath: string, repoPath: string): string {
-    return path.relative(repoPath, filePath);
   }
 }
